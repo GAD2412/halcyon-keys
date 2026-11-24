@@ -58,7 +58,7 @@ export function stageShot(G, name) {
     // Golden hour, Flamingo Mile: a 4-star getaway with cruisers, MANTA-1, a roadblock, traffic and a fleeing crowd.
     G.dayNight.setHour(17.45);
     G.progression.cash = 24350; G.progression.respect = 940;
-    G.missions.loadState({ done: ['homecoming', 'borrowed-paint', 'lantern-night', 'hot-wire'] });
+    G.missions.loadState({ done: ['homecoming', 'borrowed-paint', 'ninefold-tail', 'lantern-night', 'hot-wire', 'long-lens', 'armored-tuesday', 'wrens-convoy'] });
     G.missions.startMission('low-sun');
     G.missions.jumpToStep(3);
     G.wanted.force(4); G.wanted.seen = true;
@@ -110,7 +110,7 @@ export function stageShot(G, name) {
     // Dusk in the Lantern Quarter night market: a gunfight with the Rustline Kings.
     G.dayNight.setHour(17.95);
     G.progression.cash = 6820; G.progression.respect = 410;
-    G.missions.loadState({ done: ['homecoming', 'borrowed-paint'] });
+    G.missions.loadState({ done: ['homecoming', 'borrowed-paint', 'ninefold-tail'] });
     G.missions.startMission('lantern-night');
     G.missions.jumpToStep(1);
     const gang = G.missions.active().data.gang;
@@ -146,7 +146,8 @@ export function stageShot(G, name) {
   } else if (name === 'map') {
     G.dayNight.setHour(16.8);
     G.progression.cash = 15480; G.progression.respect = 760;
-    G.missions.loadState({ done: ['homecoming', 'borrowed-paint', 'lantern-night'] });
+    G.missions.loadState({ done: ['homecoming', 'borrowed-paint', 'ninefold-tail', 'lantern-night'] });
+    G.side.best['mile-sprint'] = 31.4;
     G.missions.startMission('hot-wire');
     G.missions.jumpToStep(1);
     G.missions.jumpToStep(2);
@@ -168,7 +169,7 @@ export function stageShot(G, name) {
     // Neon night in Glasswater: the Hot Wire courier run against the clock, traffic headlights everywhere.
     G.dayNight.setHour(21.6);
     G.progression.cash = 15480; G.progression.respect = 760;
-    G.missions.loadState({ done: ['homecoming', 'borrowed-paint', 'lantern-night'] });
+    G.missions.loadState({ done: ['homecoming', 'borrowed-paint', 'ninefold-tail', 'lantern-night'] });
     G.missions.startMission('hot-wire');
     G.missions.jumpToStep(1);
     G.missions.jumpToStep(2);

@@ -1,6 +1,6 @@
 // The story of HALCYON KEYS: Nico Vale comes home to Port Halcyon and works for Auntie Pearl's crew
-// against the Rustline Kings and Cassius Wren's Gilded Tide. Each mission is a list of steps the
-// mission director runs, with dialogue cards between them.
+// against the Rustline Kings and Cassius Wren's Gilded Tide: nine missions in three acts. Each mission
+// is a list of steps the mission director runs, with dialogue cards between them.
 import { PLACES } from '../world/cityPlan.js';
 
 export const MISSIONS = [
@@ -37,6 +37,22 @@ export const MISSIONS = [
     ],
   },
   {
+    id: 'ninefold-tail', letter: 'T', title: 'Ninefold Tail', act: 'Act I', giver: 'tuck', start: PLACES.garage,
+    reward: 1000, respect: 100,
+    steps: [
+      { type: 'dialogue', lines: [
+        { who: 'tuck', text: 'A Rustline Kings truck rolls out of the yards every evening. Nobody knows where it goes.' },
+        { who: 'tuck', text: 'Take the Pip. Follow the truck. Not too close, Nico, Oz has eyes in the back of his head.' },
+      ] },
+      { type: 'enterVehicle', text: 'Get in the <b>Pip</b>', spawn: { type: 'pip', x: 198.25, z: -55, h: 0, paint: '#8fd7d0' } },
+      { type: 'tail', text: 'Tail the Kings truck', time: 45, spawn: { type: 'haulit', x: 194.75, z: 25, h: 0, paint: '#c0503a', cruise: 9 } },
+      { type: 'dialogue', lines: [
+        { who: 'oz', text: '(on the radio) Load goes to the ferry slip. Tell nobody, tell the Tide.' },
+        { who: 'tuck', text: 'So the Kings run for Cassius Wren. That changes things.' },
+      ] },
+    ],
+  },
+  {
     id: 'lantern-night', letter: 'L', title: 'Lantern Night', act: 'Act II', giver: 'lux', start: { x: -250, z: 9, name: 'Night Market Gate' },
     reward: 2000, respect: 180, giveWeapon: { smg: 150, pistol: 48 },
     steps: [
@@ -59,6 +75,52 @@ export const MISSIONS = [
       { type: 'enterVehicle', text: 'Take the <b>Brute 8</b>', spawn: { type: 'brute8', x: 98.25, z: -172, h: 0, paint: '#e0482f' } },
       { type: 'checkpoints', text: 'Courier drop', time: 100, points: [[0, -100], [-100, 100], [200, 0]] },
       { type: 'dialogue', lines: [{ who: 'pearl', text: 'All three, on time. The Tide noticed. Good.' }] },
+    ],
+  },
+  {
+    id: 'long-lens', letter: 'L', title: 'Long Lens', act: 'Act II', giver: 'lux', start: { x: -425, z: 312, name: 'Halo Pier boardwalk' },
+    reward: 1500, respect: 120,
+    steps: [
+      { type: 'dialogue', lines: [
+        { who: 'lux', text: 'Cassius Wren meets the harbor master on Halo Pier at sundown.' },
+        { who: 'lux', text: 'Get under the lifeguard tower and watch. Stay put until I have the whole conversation.' },
+      ] },
+      { type: 'goto', text: 'Get to the <b>lifeguard tower</b> by the pier', x: -444, z: 343, r: 6 },
+      { type: 'hold', text: 'Watch the deal', x: -444, z: 343, r: 8, time: 15 },
+      { type: 'dialogue', lines: [
+        { who: 'cassius', text: '(far off) The harbor, the docks, the boulevard. By summer the Keys are mine.' },
+        { who: 'lux', text: 'Got all of it. Wren is buying the harbor and the Kings are his muscle.' },
+      ] },
+    ],
+  },
+  {
+    id: 'armored-tuesday', letter: 'T', title: 'Armored Tuesday', act: 'Act III', giver: 'tuck', start: { x: 291, z: -209, name: 'Rustline Yards gate' },
+    reward: 4000, respect: 220,
+    steps: [
+      { type: 'dialogue', lines: [
+        { who: 'tuck', text: "Wren's armored truck leaves the Glasswater mint every Tuesday. Today is Tuesday." },
+        { who: 'tuck', text: 'Ram it, shoot it, wreck it. Then bring the money home with the whole PHPD behind you.' },
+      ] },
+      { type: 'destroy', text: 'Wreck the armored truck', spawn: [{ type: 'haulit', x: 105.25, z: -60, h: Math.PI, paint: '#4a5a4a', health: 140, cruise: 11 }] },
+      { type: 'escape', text: 'Escape with the cash', stars: 4, x: PLACES.garage.x - 9, z: PLACES.garage.z },
+      { type: 'drive', text: "Bring the cash to <b>Tuck's Body & Soul</b>", x: PLACES.garage.x - 9, z: PLACES.garage.z, r: 10 },
+      { type: 'dialogue', lines: [{ who: 'tuck', text: "Wren's money, our garage. I could get used to Tuesdays." }] },
+    ],
+  },
+  {
+    id: 'wrens-convoy', letter: 'P', title: "Wren's Convoy", act: 'Act III', giver: 'pearl', start: { x: -109, z: -250, name: 'Mango Hill overlook' },
+    reward: 3000, respect: 200,
+    steps: [
+      { type: 'dialogue', lines: [
+        { who: 'pearl', text: "Two black Kestrels carry Wren's lieutenants down from Mango Hill." },
+        { who: 'pearl', text: 'They do not reach the docks. Stop them, Nico.' },
+      ] },
+      { type: 'destroy', text: 'Wreck the convoy', spawn: [
+        { type: 'kestrel', x: -101.75, z: -300, h: 0, paint: '#111214', health: 90, cruise: 13, flee: true },
+        { type: 'kestrel', x: -101.75, z: -322, h: 0, paint: '#111214', health: 90, cruise: 13, flee: true },
+      ] },
+      { type: 'escape', text: 'Lose the PHPD', stars: 3 },
+      { type: 'dialogue', lines: [{ who: 'pearl', text: 'Wren is out of lieutenants. Now he has to come himself.' }] },
     ],
   },
   {

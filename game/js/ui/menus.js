@@ -8,7 +8,7 @@ const TABS = ['Map', 'Story', 'Stats', 'Features', 'Controls', 'Settings', 'Save
 const CONTROLS = [
   ['W A S D', 'Move / drive'], ['Mouse', 'Look and aim'], ['Shift', 'Sprint'], ['Space', 'Jump / handbrake'],
   ['F', 'Enter, exit or steal a car'], ['Left click', 'Fire / punch'], ['Right click', 'Aim'], ['1 2 3 / wheel', 'Fists, Tamsin 9, Hornet SMG'],
-  ['H', 'Horn'], ['R', 'Next radio station'], ['M', 'City map'], ['N', 'Mute'], ['Esc', 'Pause menu'],
+  ['H', 'Horn'], ['R', 'Next radio station'], ['T', 'Start a taxi fare (in a cab)'], ['M', 'City map'], ['N', 'Mute'], ['Esc', 'Pause menu'],
 ];
 
 export function createMenus(G) {
@@ -56,6 +56,7 @@ export function createMenus(G) {
         <div class="side-col"><h2>Port Halcyon</h2><div class="progress-big">${pr.completion()}%</div><div>complete</div>
         <div class="legend"><span><i style="background:#ffd23a"></i>Objective</span><span><i style="background:#ff6f61"></i>Mission start</span>
         <span><i style="background:#ff3a4a"></i>PHPD unit</span><span><i style="background:#c86bff"></i>GPS route</span>
+        <span><i style="background:#4aa8ff"></i>Street race</span><span><i style="background:#fff"></i>Landmark</span>
         <span><i style="background:#f2b8a8"></i>Flamingo Mile</span><span><i style="background:#9fc3dc"></i>Glasswater</span>
         <span><i style="background:#e7c48f"></i>Lantern Quarter</span><span><i style="background:#c4a58a"></i>Rustline Yards</span>
         <span><i style="background:#a9b4c0"></i>Ninefold Docks</span><span><i style="background:#a8d58f"></i>Mango Hill</span></div>
@@ -69,7 +70,7 @@ export function createMenus(G) {
       const s = pr.stats, r = pr.rank();
       const nextRank = RANKS.find((k) => k.respect > pr.respect);
       body.innerHTML = `<div class="side-col"><h2>${r.name}</h2><div class="progress-big">${pr.completion()}%</div><div>complete · ${pr.respect} respect${nextRank ? ` · next rank ${nextRank.name} at ${nextRank.respect}` : ''}</div>
-        ${[['Cash', `$${Math.round(pr.cash).toLocaleString('en-US')}`], ['Cars stolen', s.carsStolen], ['Takedowns', s.kills], ['Police evaded', s.copsEvaded], ['Busted', s.busted], ['Wasted', s.wasted], ['Distance driven', `${(s.distance / 1000).toFixed(1)} km`], ['Top speed', `${Math.round(s.topSpeed)} km/h`], ['Time played', `${Math.floor(s.playTime / 60)} min`]].map(([a, b]) => `<div class="stat-line"><span>${a}</span><b>${b}</b></div>`).join('')}</div>`;
+        ${[['Cash', `$${Math.round(pr.cash).toLocaleString('en-US')}`], ['Story missions', `${G.missions.completedCount()}/${G.missions.total()}`], ['Street races won', `${G.side.racesWon()}/${G.side.races.length}`], ['Taxi fares', G.side.faresDone()], ['Cars stolen', s.carsStolen], ['Takedowns', s.kills], ['Police evaded', s.copsEvaded], ['Busted', s.busted], ['Wasted', s.wasted], ['Distance driven', `${(s.distance / 1000).toFixed(1)} km`], ['Top speed', `${Math.round(s.topSpeed)} km/h`], ['Time played', `${Math.floor(s.playTime / 60)} min`]].map(([a, b]) => `<div class="stat-line"><span>${a}</span><b>${b}</b></div>`).join('')}</div>`;
     } else if (tab === 'Features') {
       body.innerHTML = `<div class="side-col"><h2>Features</h2><ul class="features" style="max-width:none">${document.getElementById('features').innerHTML}</ul></div>`;
     } else if (tab === 'Controls') {

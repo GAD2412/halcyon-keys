@@ -42,7 +42,7 @@ export function createMinimap(canvas, G) {
         ctx.beginPath(); ctx.arc(w.lastX, w.lastZ, w.searchRadius(), 0, Math.PI * 2); ctx.fill(); ctx.stroke();
       }
       // GPS route
-      const tgt = G.missions.target();
+      const tgt = G.side.target() || G.missions.target();
       if (tgt) {
         const route = gpsRoute(px, pz, tgt.x, tgt.z);
         ctx.strokeStyle = '#c86bff'; ctx.lineWidth = 7 / zoom; ctx.lineJoin = 'round';
@@ -62,6 +62,7 @@ export function createMinimap(canvas, G) {
         ctx.strokeStyle = ring ? '#000' : 'rgba(0,0,0,0.7)'; ctx.lineWidth = 2.5; ctx.stroke();
       };
       for (const m of G.missions.startMarkers()) blip(m.x, m.z, '#ff6f61', 13, true, true);
+      for (const m of G.side.markers()) blip(m.x, m.z, '#4aa8ff', 10, false, true);
       for (const g of G.humans) if (g.kind === 'gang' && g.alive) blip(g.x, g.z, '#ff3a3a', 7);
       const flash = Math.sin(G.time * 10) > 0;
       for (const u of G.police.units) if (!u.wrecked) blip(u.x, u.z, flash ? '#ff3a4a' : '#3a7aff', 10, w.stars > 0);

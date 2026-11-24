@@ -10,7 +10,7 @@ export function createSaveGame(G) {
     return {
       v: 1, at: new Date().toISOString(),
       cash: G.progression.cash, respect: G.progression.respect, stats: G.progression.stats,
-      missions: G.missions.saveState(),
+      missions: G.missions.saveState(), raceBest: G.side.best,
       player: { x: p.vehicle ? p.vehicle.x : p.x, z: p.vehicle ? p.vehicle.z : p.z, health: p.health, armor: p.armor, ammo: { pistol: p.ammo.pistol, smg: p.ammo.smg }, owned: [...p.owned], weapon: p.weapon },
       hour: G.dayNight.state.hour,
     };
@@ -29,6 +29,7 @@ export function createSaveGame(G) {
       const p = G.player;
       G.progression.cash = s.cash; G.progression.respect = s.respect; Object.assign(G.progression.stats, s.stats || {});
       G.missions.loadState(s.missions);
+      Object.assign(G.side.best, s.raceBest || {}); G.side.reset();
       p.respawn(s.player.x, s.player.z);
       p.health = s.player.health; p.armor = s.player.armor;
       Object.assign(p.ammo, s.player.ammo); p.owned = new Set(s.player.owned); p.selectWeapon(s.player.weapon);

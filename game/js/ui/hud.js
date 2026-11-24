@@ -51,7 +51,7 @@ export function createHud(G) {
     update(dt) {
       const p = G.player, v = p.vehicle, pr = G.progression, w = G.wanted;
       // mission card
-      const card = G.missions.card();
+      const card = G.side.card() || G.missions.card();
       el.mission.classList.toggle('hidden', !card);
       if (card) {
         set('kicker', el.kicker, 'textContent', card.kicker);
@@ -60,7 +60,7 @@ export function createHud(G) {
         const stepsHtml = Array.from({ length: card.total }, (_, i) => `<i class="${i < card.index ? 'done' : i === card.index ? 'now' : ''}"></i>`).join('');
         set('steps', el.steps, 'innerHTML', stepsHtml);
       }
-      const timer = G.missions.timer();
+      const timer = G.side.timer() ?? G.missions.timer();
       el.timer.classList.toggle('hidden', timer === null);
       if (timer !== null) set('timer', el.timer, 'textContent', `${Math.floor(timer / 60)}:${String(Math.floor(timer % 60)).padStart(2, '0')}`);
       // status column
@@ -93,7 +93,7 @@ export function createHud(G) {
       // prompts and crosshair
       let prompt = '';
       if (!v && p.nearVehicle && p.alive) prompt = `<kbd>F</kbd>${p.nearVehicle.driver === 'ai' ? 'Steal' : 'Enter'} ${p.nearVehicle.spec.name}`;
-      const mp = G.missions.prompt();
+      const mp = G.missions.prompt() || G.side.prompt();
       if (mp) prompt = mp;
       el.prompt.classList.toggle('hidden', !prompt);
       if (prompt) set('prompt', el.prompt, 'innerHTML', prompt);

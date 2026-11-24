@@ -16,9 +16,10 @@ export function createProgression(G) {
     addRespect(n) { const before = pr.rank().name; pr.respect += n; if (pr.rank().name !== before) G.notify?.(`Rank up: ${pr.rank().name}`); },
     completion() {
       const m = G.missions?.completedCount() || 0, total = G.missions?.total() || 1;
-      const story = (m / total) * 80;
-      const extra = Math.min(10, pr.stats.carsStolen) + Math.min(10, pr.stats.copsEvaded * 2);
-      return Math.round(Math.min(100, story + extra));
+      const story = (m / total) * 70;
+      const side = (G.side ? G.side.racesWon() * 4 + Math.min(5, G.side.faresDone()) * 1.6 : 0);
+      const extra = Math.min(5, pr.stats.carsStolen * 0.5) + Math.min(5, pr.stats.copsEvaded);
+      return Math.round(Math.min(100, story + side + extra));
     },
   };
   G.events.on('crime', (type) => { if (type === 'carjack' || type === 'stealPolice') pr.stats.carsStolen++; });

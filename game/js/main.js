@@ -4,6 +4,7 @@ import { buildCity } from './world/cityBuilder.js';
 import { createPoliceDispatch } from './ai/policeDispatch.js';
 import { createWantedLevel } from './systems/wantedLevel.js';
 import { createMissionDirector } from './missions/missionDirector.js';
+import { createSideActivities } from './missions/sideActivities.js';
 import { createTraffic } from './ai/trafficAI.js';
 import { createPedestrians } from './ai/pedestrianAI.js';
 import { createPlayer } from './entities/player.js';
@@ -76,6 +77,7 @@ G.progression = createProgression(G);
 G.hud = createHud(G);
 G.notify = (t) => G.hud.notify(t);
 G.missions = createMissionDirector(G);
+G.side = createSideActivities(G);
 G.save = createSaveGame(G);
 G.audio = createAudio(G);
 G.menus = createMenus(G);
@@ -109,6 +111,7 @@ G.events.on('playerDied', () => {
   G.progression.stats.wasted++;
   G.hud.big('Wasted', 'wasted', 'Halcyon General · $100 hospital bill', 4);
   G.mode = 'dead'; deathT = 4; G.respawnAt = PLACES.hospital; G.respawnFee = 100;
+  G.side.reset();
 });
 G.events.on('busted', () => {
   if (G.mode !== 'play') return;
@@ -117,6 +120,7 @@ G.events.on('busted', () => {
   G.progression.stats.busted++;
   G.hud.big('Busted', 'busted', 'PHPD Central · $250 bail', 4);
   G.mode = 'dead'; deathT = 4; G.respawnAt = PLACES.police; G.respawnFee = 250;
+  G.side.reset();
 });
 
 G.startGame = (slot) => {
@@ -167,6 +171,7 @@ function update(dt) {
   G.police.update(dt);
   G.wanted.update(dt);
   G.missions.update(dt);
+  G.side.update(dt, input);
   for (const v of G.vehicles) v.update(dt);
   resolveVehicleCollisions(G, G.vehicles);
   G.effects.update(dt);

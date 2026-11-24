@@ -1,20 +1,23 @@
 // Runs the story: shows the next mission's start marker, starts it when the player walks in, steps
 // through its objectives (dialogue, go to, steal a car, drive, lose the police, eliminate, timed
 // checkpoints, escape), draws the objective beam, pays rewards, and fails it on death or arrest.
-import * as THREE from 'three';
 import { MISSIONS } from './story.js';
 import { Vehicle } from '../entities/vehicle.js';
 import { spawnGangMember, updateGangMember } from '../ai/gangAI.js';
+import { snapToLane } from '../ai/trafficAI.js';
+import { makeMarkerBeam as makeBeam } from '../render/markerBeam.js';
 
-function makeBeam(color) {
-  const g = new THREE.Group();
-  const beam = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.4, 70, 18, 1, true), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.32, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false }));
-  beam.position.y = 35;
-  const ring = new THREE.Mesh(new THREE.RingGeometry(2.2, 3, 32), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.85, side: THREE.DoubleSide, depthWrite: false }));
-  ring.rotation.x = -Math.PI / 2; ring.position.y = 0.3;
-  g.add(beam, ring);
-  g.visible = false;
-  return g;
+// A mission vehicle that drives itself through traffic (tail and wreck targets).
+function spawnDrivingTarget(G, sp) {
+  const car = new Vehicle(G, sp.type, sp.x, sp.z, sp.h, sp.paint);
+  car.driver = 'ai'; car.role = 'mission';
+  snapToLane(car);
+  car.ai.cruise = sp.cruise || 10;
+  if (sp.flee) car.ai.panic = 1e9;
+  if (sp.health) car.health = sp.health;
+  G.vehicles.push(car);
+  G.traffic.cars.push(car);
+  return car;
 }
 
 export function createMissionDirector(G) {
@@ -51,6 +54,9 @@ export function createMissionDirector(G) {
     if (s.type === 'eliminate') d.gang = s.spawn.map(([x, z], i) => spawnGangMember(G, x, z, i % 2 ? 'smg' : 'pistol'));
     if (s.type === 'checkpoints') { d.i = 0; d.t = s.time; }
     if (s.type === 'escape') G.wanted.force(s.stars);
+    if (s.type === 'tail') { d.car = spawnDrivingTarget(G, s.spawn); d.t = s.time; d.close = 0; }
+    if (s.type === 'destroy') d.cars = s.spawn.map((sp) => spawnDrivingTarget(G, sp));
+    if (s.type === 'hold') d.t = 0;
   }
 
   function complete() {
@@ -68,6 +74,7 @@ export function createMissionDirector(G) {
   function cleanup(removeCar) {
     if (!active) return;
     for (const g of active.data.gang || []) if (!g.alive || removeCar) { const i = G.humans.indexOf(g); if (i >= 0) G.humans.splice(i, 1); }
+    for (const c of [active.data.car, ...(active.data.cars || [])]) if (c && c.role === 'mission') c.role = 'traffic';
     if (active.car && active.car.role === 'mission') active.car.role = 'parked';
   }
 
@@ -101,6 +108,9 @@ export function createMissionDirector(G) {
       if (s.type === 'goto' || s.type === 'drive' || (s.type === 'escape' && s.x !== undefined)) return { x: s.x, z: s.z };
       if (s.type === 'checkpoints') { const [x, z] = s.points[active.data.i]; return { x, z }; }
       if (s.type === 'eliminate') { const g = active.data.gang?.find((h) => h.alive); return g ? { x: g.x, z: g.z } : null; }
+      if (s.type === 'tail' && active.data.car) return { x: active.data.car.x, z: active.data.car.z };
+      if (s.type === 'destroy') { const c = active.data.cars?.find((v) => !v.wrecked); return c ? { x: c.x, z: c.z } : null; }
+      if (s.type === 'hold') return { x: s.x, z: s.z };
       return null;
     },
     card() {
@@ -115,7 +125,13 @@ export function createMissionDirector(G) {
       if (s?.type === 'eliminate') { const g = active.data.gang || []; objective = `${s.text}: <b>${g.filter((h) => !h.alive).length}/${g.length}</b> down`; }
       if (s?.type === 'checkpoints') objective = `${s.text} <b>${active.data.i + 1}/${s.points.length}</b>`;
       if (s?.type === 'loseWanted' || s?.type === 'escape') objective = `${s.text} <b>${'★'.repeat(G.wanted.stars)}</b>`;
-      if (s?.type === 'drive' && s.needMissionCar && G.player.vehicle !== active.car) objective = 'Get back in the <b>Kestrel GT</b>';
+      if (s?.type === 'drive' && s.needMissionCar && G.player.vehicle !== active.car) objective = `Get back in the <b>${active.car.spec.name}</b>`;
+      if (s?.type === 'tail' && active.data.car) {
+        const dist = Math.hypot(active.data.car.x - pos().x, active.data.car.z - pos().z);
+        objective = `${s.text} · <b>${Math.round(dist)} m</b>${dist < 14 ? ' · too close!' : dist > 100 ? ' · losing it!' : ''} · ${Math.ceil(active.data.t)} s`;
+      }
+      if (s?.type === 'destroy') { const c = active.data.cars || []; objective = `${s.text}: <b>${c.filter((v) => v.wrecked).length}/${c.length}</b>`; }
+      if (s?.type === 'hold') objective = `${s.text}: <b>${Math.floor(active.data.t)}/${s.time} s</b>`;
       const idx = MISSIONS.indexOf(m);
       return { kicker: `${m.act} · Mission ${idx + 1}`, title: m.title, objective, index: active.index, total: m.steps.length };
     },
@@ -156,6 +172,22 @@ export function createMissionDirector(G) {
           if ((!s.needMissionCar || G.player.vehicle === active.car) && near(s.x, s.z, s.r)) advance();
           break;
         case 'loseWanted': case 'escape': if (G.wanted.stars === 0) advance(); break;
+        case 'tail': {
+          const c = d.car;
+          if (c.wrecked) return fail('The truck was wrecked');
+          const dist = Math.hypot(c.x - p.x, c.z - p.z);
+          d.close = dist < 9 ? d.close + dt : Math.max(0, d.close - dt);
+          if (d.close > 2.5) return fail('They spotted you');
+          if (dist > 130) return fail('You lost the truck');
+          d.t -= dt;
+          if (d.t <= 0) advance();
+          break;
+        }
+        case 'destroy': if (d.cars.every((v) => v.wrecked)) advance(); break;
+        case 'hold':
+          if (near(s.x, s.z, s.r)) d.t += dt; else d.t = Math.max(0, d.t - dt * 2);
+          if (d.t >= s.time) advance();
+          break;
         case 'eliminate': if (d.gang.every((g) => !g.alive)) advance(); break;
         case 'checkpoints': {
           d.t -= dt;
