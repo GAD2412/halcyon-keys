@@ -52,15 +52,25 @@ export function createMenus(G) {
     for (const b of tabsEl.children) b.classList.toggle('active', b.dataset.tab === tab);
     const pr = G.progression;
     if (tab === 'Map') {
+      // one screen that shows the whole game: map, completion, rank, stats, story and features
+      const s = pr.stats, r = pr.rank(), nr = RANKS.find((k) => k.respect > pr.respect);
+      const statRows = [['Cash', `$${Math.round(pr.cash).toLocaleString('en-US')}`], ['Story missions', `${G.missions.completedCount()}/${G.missions.total()}`],
+        ['Street races won', `${G.side.racesWon()}/${G.side.races.length}`], ['Taxi fares', G.side.faresDone()], ['Stunt jumps', `${G.stunts.count()}/${G.stunts.total}`],
+        ['Lost postcards', `${G.postcards.count()}/${G.postcards.total}`], ['Cars stolen', s.carsStolen], ['Police evaded', s.copsEvaded]];
+      const feats = [...document.querySelectorAll('#features li')].map((li) => `<li>${li.dataset.short || li.textContent}</li>`).join('');
       body.innerHTML = `<div class="map-wrap"><canvas id="pause-map" width="900" height="900"></canvas></div>
-        <div class="side-col"><h2>Port Halcyon</h2><div class="progress-big">${pr.completion()}%</div><div>complete</div>
+        <div class="side-grid"><div class="side-col">
+        <h2>Port Halcyon</h2><div class="progress-big">${pr.completion()}%</div><div>complete</div>
+        <div class="mini-rank">${r.name.toUpperCase()} · <b>${pr.respect.toLocaleString('en-US')}${nr ? ` / ${nr.respect.toLocaleString('en-US')}` : ''}</b> respect</div>
+        <div class="mini-stats">${statRows.map(([k, v]) => `<span>${k}</span><b>${v}</b>`).join('')}</div>
         <div class="legend"><span><i style="background:#ffd23a"></i>Objective</span><span><i style="background:#ff6f61"></i>Mission start</span>
         <span><i style="background:#ff3a4a"></i>PHPD unit</span><span><i style="background:#c86bff"></i>GPS route</span>
         <span><i style="background:#4aa8ff"></i>Street race</span><span><i style="background:#ffc21a"></i>Stunt jump</span><span><i style="background:#fff"></i>Landmark</span>
         <span><i style="background:#f2b8a8"></i>Flamingo Mile</span><span><i style="background:#9fc3dc"></i>Glasswater</span>
         <span><i style="background:#e7c48f"></i>Lantern Quarter</span><span><i style="background:#c4a58a"></i>Rustline Yards</span>
         <span><i style="background:#a9b4c0"></i>Ninefold Docks</span><span><i style="background:#a8d58f"></i>Mango Hill</span></div>
-        <h2 style="margin-top:18px">Story</h2>${storyRows()}</div>`;
+        </div><div class="side-col"><h2>Story</h2>${storyRows()}
+        <h2 style="margin-top:12px">Features</h2><ul class="mini-feats">${feats}</ul></div></div>`;
       drawWorldMap(document.getElementById('pause-map'), G);
     } else if (tab === 'Story') {
       body.innerHTML = `<div class="side-col"><h2>Story · ${G.missions.completedCount()}/${G.missions.total()} missions</h2>${storyRows(true)}

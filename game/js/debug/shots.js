@@ -177,6 +177,10 @@ export function stageShot(G, name) {
     G.progression.cash = 15480; G.progression.respect = 760;
     G.missions.loadState({ done: ['homecoming', 'borrowed-paint', 'ninefold-tail', 'lantern-night'] });
     G.side.best['mile-sprint'] = 31.4;
+    // a mid-game save: some postcards and stunt jumps found, a few cars stolen and pursuits shaken off
+    G.postcards.loadState([0, 3, 4, 8, 11, 18]);
+    G.stunts.loadState([0, 3]);
+    Object.assign(G.progression.stats, { carsStolen: 9, copsEvaded: 6, kills: 31 });
     G.missions.startMission('hot-wire');
     G.missions.jumpToStep(1);
     G.missions.jumpToStep(2);
