@@ -108,9 +108,14 @@ export function createPlayer(G, x, z) {
     for (const v of G.vehicles) {
       for (const c of v.circles()) {
         const dx = p.x - c.x, dz = p.z - c.z, d = Math.hypot(dx, dz), rr = v.radius + p.radius;
-        if (d < rr && d > 1e-4) { p.x = c.x + (dx / d) * rr; p.z = c.z + (dz / d) * rr; }
+        if (d < rr && d > 1e-4) {
+          p.x = c.x + (dx / d) * rr; p.z = c.z + (dz / d) * rr;
+          const spd = Math.hypot(v.vx, v.vz);
+          if (spd > 6 && p.hitT <= 0) { p.hitT = 0.8; G.combat.damageHuman(p, spd * 2.2, null); G.audio?.punch(); }
+        }
       }
     }
+    p.hitT = Math.max(0, (p.hitT || 0) - dt);
     p.pose = p.aiming ? 'aim' : speed > 5 ? 'run' : speed > 0.1 ? 'walk' : 'idle';
     p.phase += speed * dt * 2.3;
     p.aimPitch = -G.cameraRig.pitch * 0.8;

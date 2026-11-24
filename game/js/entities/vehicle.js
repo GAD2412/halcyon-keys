@@ -126,7 +126,7 @@ export class Vehicle {
   }
 
   impact(strength, x, z) {
-    this.health -= strength * (this.role === 'police' ? 0.9 : 1.4);
+    if (strength > 7) this.health -= (strength - 5) * (this.spec.police ? 0.45 : this.driver === 'player' ? 0.8 : 1.1);
     this.G.effects?.sparks(x, 0.8, z, Math.min(20, strength * 1.5));
     this.G.audio?.crash(strength, x, z);
   }

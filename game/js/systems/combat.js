@@ -120,6 +120,17 @@ export function createCombat(G) {
       if (p.ammo[p.weapon] <= 0) { G.audio?.click(); p.fireCooldown = 0.3; return; }
       p.ammo[p.weapon]--;
       const ray = G.cameraRig.aimRay();
+      // soft lock-on: bend the shot toward a person within a few degrees of the crosshair
+      let best = null, bestA = 0.07;
+      for (const h of G.humans) {
+        if (h === p || !h.alive || !h.visible) continue;
+        const dx = h.x - ray.origin.x, dy = (h.y || 0) + 1.15 - ray.origin.y, dz = h.z - ray.origin.z;
+        const d = Math.hypot(dx, dy, dz);
+        if (d > WEAPONS[p.weapon].range) continue;
+        const a = Math.acos(Math.min(1, (dx * ray.dir.x + dy * ray.dir.y + dz * ray.dir.z) / d));
+        if (a < bestA) { bestA = a; best = { dx: dx / d, dy: dy / d, dz: dz / d }; }
+      }
+      if (best) ray.dir.set(best.dx, best.dy, best.dz);
       // start the ray at the player's depth so walls behind the camera never block it
       const along = Math.max(0, (p.x - ray.origin.x) * ray.dir.x + (p.z - ray.origin.z) * ray.dir.z);
       const o = { x: ray.origin.x + ray.dir.x * along, y: ray.origin.y + ray.dir.y * along, z: ray.origin.z + ray.dir.z * along };

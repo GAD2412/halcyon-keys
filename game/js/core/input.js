@@ -11,7 +11,11 @@ export const input = {
   axis: (neg, pos) => (held.has(pos) ? 1 : 0) - (held.has(neg) ? 1 : 0),
   mouse,
   locked: () => document.pointerLockElement === canvasEl,
-  lock: () => { if (canvasEl && !input.locked()) canvasEl.requestPointerLock?.(); },
+  lock: () => {
+    // browsers only grant pointer lock inside a user gesture
+    if (!canvasEl || input.locked() || navigator.userActivation?.isActive === false) return;
+    try { canvasEl.requestPointerLock?.()?.catch?.(() => {}); } catch { /* not allowed here */ }
+  },
   unlock: () => { if (document.pointerLockElement) document.exitPointerLock(); },
   endFrame() {
     pressed.clear();
