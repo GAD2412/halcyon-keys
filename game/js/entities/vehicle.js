@@ -156,14 +156,24 @@ export class Vehicle {
   }
 
   // Glows for headlights, tail lights and the siren bar, written into the shared light cloud.
-  drawGlows(glows, night) {
+  drawGlows(glows, night, wet = 0) {
     const f = this.forward, r = rightOf(this.heading);
     const L = this.spec.len / 2, W = this.spec.wid / 2 - 0.3;
     if (this.wrecked) return;
+    // on a wet road each lamp leaves a streak of reflection running toward the viewer
+    const cam = this.G.camera.position;
+    const streak = (x, z, cr, cg, cb) => {
+      const dx = cam.x - x, dz = cam.z - z, d = Math.hypot(dx, dz) || 1;
+      for (let k = 0; k < 7; k++) { const t = wet * 0.22 * (1 - k * 0.12); glows.add(x + (dx / d) * k * 0.5, 0.06, z + (dz / d) * k * 0.5, cr * t, cg * t, cb * t, 5.2 - k * 0.45); }
+    };
     if (night) {
       for (const sx of [-1, 1]) {
-        glows.add(this.x + f.x * (L + 0.2) + r.x * W * sx, 0.75, this.z + f.z * (L + 0.2) + r.z * W * sx, 1, 0.93, 0.75, 5.5);
-        glows.add(this.x - f.x * (L + 0.1) + r.x * W * sx, 0.75, this.z - f.z * (L + 0.1) + r.z * W * sx, 0.9, 0.05, 0.05, 3);      }
+        const hx = this.x + f.x * (L + 0.2) + r.x * W * sx, hz = this.z + f.z * (L + 0.2) + r.z * W * sx;
+        const tx = this.x - f.x * (L + 0.1) + r.x * W * sx, tz = this.z - f.z * (L + 0.1) + r.z * W * sx;
+        glows.add(hx, 0.75, hz, 1, 0.93, 0.75, 5.5);
+        glows.add(tx, 0.75, tz, 0.9, 0.05, 0.05, 3);
+        if (wet > 0.1) { streak(hx, hz, 1, 0.93, 0.75); streak(tx, tz, 1, 0.08, 0.06); }
+      }
     } else if (this.controls.brake > 0.2 && this.speed > 1) {
       for (const sx of [-1, 1]) glows.add(this.x - f.x * (L + 0.1) + r.x * W * sx, 0.75, this.z - f.z * (L + 0.1) + r.z * W * sx, 1, 0.08, 0.08, 3.5);
     }

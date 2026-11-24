@@ -206,7 +206,7 @@ function render(dt) {
   G.effects.setViewportHeight(innerHeight * Math.min(devicePixelRatio, 1.5));
   glows.begin();
   const night = G.dayNight.state.glow > 0.35;
-  for (const v of G.vehicles) if (Math.abs(v.x - c.x) < 260 && Math.abs(v.z - c.z) < 260) v.drawGlows(glows, night);
+  for (const v of G.vehicles) if (Math.abs(v.x - c.x) < 260 && Math.abs(v.z - c.z) < 260) v.drawGlows(glows, night, G.weather.state.wet);
   G.police.drawGlows(glows);
   G.effects.drawGlows(glows);
   G.postcards.drawGlows(glows);
