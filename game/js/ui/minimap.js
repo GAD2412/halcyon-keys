@@ -64,6 +64,7 @@ export function createMinimap(canvas, G) {
       for (const m of G.missions.startMarkers()) blip(m.x, m.z, '#ff6f61', 13, true, true);
       for (const m of G.side.markers()) blip(m.x, m.z, '#4aa8ff', 10, false, true);
       for (const g of G.humans) if (g.kind === 'gang' && g.alive) blip(g.x, g.z, '#ff3a3a', 7);
+      for (const rv of G.side.rivals()) if (!rv.removed) blip(rv.x, rv.z, '#ffa12a', 9);
       const flash = Math.sin(G.time * 10) > 0;
       for (const u of G.police.units) if (!u.wrecked) blip(u.x, u.z, flash ? '#ff3a4a' : '#3a7aff', 10, w.stars > 0);
       for (const o of G.police.officers) if (o.alive) blip(o.x, o.z, flash ? '#3a7aff' : '#ff3a4a', 6);

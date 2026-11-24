@@ -183,34 +183,34 @@ export function stageShot(G, name) {
     G.mode = 'shot';
     finish({ x: -40, z: -100 });
   } else if (name === 'night') {
-    // Neon night in Glasswater: the Hot Wire courier run against the clock, traffic headlights everywhere.
+    // Neon night in Glasswater, rain on the road: the Glasswater Loop street race, Nico's Kestrel GT
+    // running second, wheel to wheel with two rivals and chasing the leader's tail lights.
     G.dayNight.setHour(21.6);
     G.weather.setRain(true);
     G.progression.cash = 15480; G.progression.respect = 760;
     G.missions.loadState({ done: ['homecoming', 'borrowed-paint', 'ninefold-tail', 'lantern-night'] });
-    G.missions.startMission('hot-wire');
-    G.missions.jumpToStep(1);
-    G.missions.jumpToStep(2);
-    const brute = G.missions.active().car;
-    p.enter(brute);
-    Object.assign(brute, { x: 98.2, z: -40, heading: Math.PI + 0.12, speed: 33, roll: 0.05 });
-    const f = brute.forward; brute.vx = f.x * 33; brute.vz = f.z * 33; brute.controls.throttle = 1; brute.sync();
-    G.missions.active().data.t = 61.4; G.missions.active().data.i = 1;
-    p.x = brute.x; p.z = brute.z;
+    const S = 37;
+    const kes = car('kestrel', 101.6, -53, Math.PI + 0.04, '#f4f1ea', S, { roll: 0.03 });
+    kes.controls.throttle = 1; kes.driver = null; kes.sync();
+    p.enter(kes); p.x = kes.x; p.z = kes.z;
     p.selectWeapon('smg');
-    const lanes = [[101.75, -95, Math.PI, 12], [105.25, -120, Math.PI, 10], [94.75, -70, 0, 11], [98.25, -125, 0, 10], [101.75, 6, Math.PI, 0], [94.75, 30, 0, 0], [60, -1.75, -Math.PI / 2, 10], [140, 1.75, Math.PI / 2, 9], [130, -101.75, Math.PI / 2, 9], [70, -98.25, -Math.PI / 2, 0]];
-    const types = ['cab', 'caravel', 'pip', 'haulit', 'kestrel', 'cab', 'brute8', 'caravel', 'pip', 'cab'];
+    const rivals = [car('kestrel', 105.4, -51.2, Math.PI - 0.03, '#7a3ad8', S), car('brute8', 97.9, -50.4, Math.PI + 0.05, '#ff7a1a', S - 1), car('kestrel', 102.6, -77, Math.PI - 0.02, '#2bb3a8', S + 1)];
+    for (const rv of rivals) { rv.controls.throttle = 1; }
+    G.side.stageRace('glasswater-loop', 1, 41.6, rivals);
+    // spray behind the racers on the wet road
+    for (const v of [kes, ...rivals]) for (let i = 0; i < 5; i++) G.effects.smoke(v.x + r.range(-0.8, 0.8), 0.35, v.z + 2.6 + i * 0.9, 0.6 + i * 0.12, 0.85, 0.22);
+    // city traffic: oncoming headlights, cars held at the junction, a cab the racers are about to pass
+    const lanes = [[94.75, -120, 0, 11], [98.25, -150, 0, 10], [94.75, -175, 0, 9], [105.25, -112, Math.PI, 8], [101.75, -140, Math.PI, 7], [112, -98.25, -Math.PI / 2, 0], [88, -101.75, Math.PI / 2, 0], [130, -101.75, Math.PI / 2, 9], [70, -98.25, -Math.PI / 2, 4]];
+    const types = ['cab', 'caravel', 'haulit', 'cab', 'pip', 'brute8', 'caravel', 'pip', 'cab'];
     lanes.forEach(([x, z, h, s], i) => car(types[i], x, z, h, null, s));
     for (let i = 0; i < 18; i++) {
       const side = i % 2 ? 91 : 109;
-      person('ped', side + r.range(-1.2, 1.2), r.range(-130, 20), r.chance(0.5) ? 0 : Math.PI, r.chance(0.8) ? 'walk' : 'idle');
+      person('ped', side + r.range(-1.2, 1.2), r.range(-140, -30), r.chance(0.5) ? 0 : Math.PI, r.chance(0.8) ? 'walk' : 'idle');
     }
-    G.wanted.force(2); G.wanted.seen = true;
-    cop('barracuda', 102.8, -31.5, Math.PI + 0.08, 34, 2.2);
-    cop('reef', 94.6, -27, Math.PI - 0.1, 30, 5.2);
-    G.hud.dialogue.pin({ who: 'pearl', text: 'Second drop is two blocks up. Do not stop for lights.' });
-    camera([97.5, 5.4, -15], [99.5, 1.2, -60], 62);
+    person('ped', 108.6, -60, -Math.PI / 2, 'handsup'); person('ped', 92, -58, Math.PI / 2, 'idle');
+    G.hud.dialogue.clear();
+    camera([101.2, 3.7, -40.2], [101.8, 0.9, -80], 58);
     G.cameraRig.yaw = Math.PI;
-    finish({ x: 98, z: -60 });
+    finish({ x: 101, z: -70 });
   }
 }
