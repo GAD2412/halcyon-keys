@@ -15,9 +15,10 @@
 - **A living city:** traffic that keeps its lanes, stops at signals, follows, turns and panics; pedestrians who stroll the sidewalks and boardwalk and flee, cower or fall.
 - **Wanted level:** five stars. PHPD Reef cruisers, Barracuda interceptors, roadblocks, officers on foot and the MANTA-1 helicopter with its searchlight; a search area when they lose sight of you; Busted and Wasted.
 - **Combat:** fists, the Tamsin 9 pistol and the Hornet SMG; health and armor; tracers, muzzle flashes and hit markers.
-- **Story:** five missions in three acts (go-to, steal, deliver, lose the police, defend, timed courier drops, escape) with dialogue cards and procedural portraits; cash, respect and ranks.
+- **Story:** nine missions in three acts (steal and deliver, tail a truck unseen, defend the night market, timed courier drops, a stakeout, an armored-truck heist, wrecking a convoy, a four-star escape) with dialogue cards and procedural portraits; cash, respect and ranks.
+- **Side activities:** three street time trials and Halcyon Cabs taxi fares (press T in a cab).
 - **HUD and menus:** rotating minimap with GPS route, police and helicopter blips; stars, cash, weapon, dispatch roster, speedometer and radio; title screen; pause menu with city map, story, stats, features, controls, settings and three save slots plus autosave.
-- **Look and sound:** golden-hour lighting with a full day-night cycle, neon nights, painted facades; synthesised engine, sirens, gunshots, explosions and three procedural radio stations.
+- **Look and sound:** golden-hour lighting with sunset clouds and a full day-night cycle, neon nights with rain and wet roads, live traffic signals, painted facades; synthesised engine, sirens, gunshots, explosions and three procedural radio stations.
 
 ### Controls
 
@@ -32,6 +33,7 @@
 | 1 2 3, mouse wheel | Fists, pistol, SMG |
 | H | Horn |
 | R | Next radio station |
+| T | Start a taxi fare (in a cab) |
 | M | City map |
 | N | Mute |
 | Esc | Pause menu |
