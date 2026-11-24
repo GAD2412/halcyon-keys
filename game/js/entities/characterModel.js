@@ -3,6 +3,7 @@
 // cowering and lying dead.
 import * as THREE from 'three';
 import { createRandom } from '../core/random.js';
+import { MeshBuilder } from '../render/meshBuilder.js';
 
 const PARTS = {
   legL: { size: [0.17, 0.9, 0.2], off: [0, -0.45, 0], pivot: [0.11, 0.93, 0] },
@@ -12,9 +13,10 @@ const PARTS = {
   armR: { size: [0.13, 0.64, 0.15], off: [0, -0.29, 0], pivot: [-0.31, 1.5, 0] },
   head: { size: [0.27, 0.29, 0.28], off: [0, 0.15, 0], pivot: [0, 1.55, 0] },
   hair: { size: [0.29, 0.1, 0.3], off: [0, 0.31, -0.01], pivot: [0, 1.55, 0] },
+  hairLong: { size: [0.3, 0.42, 0.3], off: [0, 0, 0], pivot: [0, 1.55, 0] },
   gun: { size: [0.07, 0.14, 0.34], off: [0, -0.62, 0.12], pivot: [-0.31, 1.5, 0] },
 };
-const COLOR_KEY = { legL: 'pants', legR: 'pants', torso: 'shirt', armL: 'shirt', armR: 'shirt', head: 'skin', hair: 'hair', gun: 'gun' };
+const COLOR_KEY = { legL: 'pants', legR: 'pants', torso: 'shirt', armL: 'shirt', armR: 'shirt', head: 'skin', hair: 'hair', hairLong: 'hair', gun: 'gun' };
 
 const SKINS = ['#f1c9a5', '#e3b08a', '#c98e62', '#a8704c', '#7a4a2c', '#5e3a24'];
 const HAIRS = ['#2a1d14', '#4a2e1c', '#c8a060', '#151515', '#8a4a2a', '#d9d0c0'];
@@ -26,15 +28,36 @@ export function randomLook(kind = 'ped', rnd = looks) {
   if (kind === 'cop') return { shirt: '#2c4672', pants: '#1c2436', skin: rnd.pick(SKINS), hair: '#16223a', gun: '#1a1a1a' };
   if (kind === 'gang') return { shirt: rnd.pick(['#c0503a', '#b8452e', '#8a2f22']), pants: '#26262a', skin: rnd.pick(SKINS), hair: '#1a1410', gun: '#1a1a1a' };
   if (kind === 'player') return { shirt: '#2bb3a8', pants: '#33405a', skin: '#c98e62', hair: '#1f1712', gun: '#1a1a1a' };
-  return { shirt: rnd.pick(SHIRTS), pants: rnd.pick(PANTS), skin: rnd.pick(SKINS), hair: rnd.pick(HAIRS), gun: '#1a1a1a' };
+  return { shirt: rnd.pick(SHIRTS), pants: rnd.pick(PANTS), skin: rnd.pick(SKINS), hair: rnd.pick(HAIRS), gun: '#1a1a1a', longHair: rnd.chance(0.45) };
+}
+
+// Part shapes: legs end in dark shoes, the torso tapers to the waist, long hair falls down the back.
+// White vertex colours take the per-person instance colour; dark ones (shoes, belt) stay dark.
+function partGeometry(name, p) {
+  const mb = new MeshBuilder();
+  const white = { r: 1, g: 1, b: 1 }, dark = { r: 0.12, g: 0.11, b: 0.1 };
+  const [sx, sy, sz] = p.size, [ox, oy, oz] = p.off;
+  if (name === 'legL' || name === 'legR') {
+    mb.box(ox, oy + 0.06, oz, sx, sy - 0.12, sz, white);
+    mb.box(ox, -sy + 0.06, oz + 0.04, sx + 0.02, 0.12, sz + 0.1, dark, { bottom: true });
+  } else if (name === 'torso') {
+    mb.prism(0, 0, 0, sx / 2 - 0.04, sz / 2, 0.1, { side: 0 }, dark);
+    mb.prism(0, 0.1, 0, sx / 2 - 0.04, sz / 2, sy - 0.18, { side: -0.04, front: 0, back: 0 }, white);
+    mb.box(0, sy - 0.04, 0, sx, 0.08, sz, white);
+  } else if (name === 'hairLong') {
+    mb.box(0, 0.2, -0.13, 0.3, 0.42, 0.08, white);
+    mb.box(0, 0.31, 0, 0.29, 0.1, 0.3, white);
+  } else {
+    mb.box(ox, oy, oz, sx, sy, sz, white, { bottom: true });
+  }
+  return mb.build();
 }
 
 export function createCrowdRenderer(scene, capacity = 220) {
-  const material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.75 });
+  const material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.75, vertexColors: true });
   const meshes = {};
   for (const [name, p] of Object.entries(PARTS)) {
-    const geo = new THREE.BoxGeometry(...p.size);
-    geo.translate(...p.off);
+    const geo = partGeometry(name, p);
     const m = new THREE.InstancedMesh(geo, material, capacity);
     m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     m.castShadow = true; m.receiveShadow = false;
@@ -63,7 +86,18 @@ export function createCrowdRenderer(scene, capacity = 220) {
 
   return {
     draw(humans) {
-      let n = 0, guns = 0;
+      const counts = {};
+      for (const name of Object.keys(PARTS)) counts[name] = 0;
+      const put = (name, angle, h, color) => {
+        const p = PARTS[name];
+        local.makeRotationX(angle);
+        local.setPosition(p.pivot[0], p.pivot[1], p.pivot[2]);
+        out.multiplyMatrices(base, local);
+        const i = counts[name]++;
+        meshes[name].setMatrixAt(i, out);
+        meshes[name].setColorAt(i, col(color || h.look[COLOR_KEY[name]]));
+      };
+      let n = 0;
       for (const h of humans) {
         if (!h.visible || n >= capacity) continue;
         const dead = h.pose === 'dead';
@@ -73,27 +107,13 @@ export function createCrowdRenderer(scene, capacity = 220) {
         s.setScalar(h.scale || 1);
         base.compose(v, q, s);
         const ang = limbAngles(h);
-        for (const [name, p] of Object.entries(PARTS)) {
-          if (name === 'gun') continue;
-          const angle = name === 'hair' ? ang.head : ang[name] || 0;
-          local.makeRotationX(angle);
-          local.setPosition(p.pivot[0], p.pivot[1], p.pivot[2]);
-          out.multiplyMatrices(base, local);
-          meshes[name].setMatrixAt(n, out);
-          meshes[name].setColorAt(n, col(h.look[COLOR_KEY[name]]));
-        }
-        if (h.armed && !dead) {
-          local.makeRotationX(ang.armR);
-          local.setPosition(...PARTS.gun.pivot);
-          out.multiplyMatrices(base, local);
-          meshes.gun.setMatrixAt(guns, out);
-          meshes.gun.setColorAt(guns, col('#1a1a1a'));
-          guns++;
-        }
+        for (const name of ['legL', 'legR', 'torso', 'armL', 'armR', 'head']) put(name, ang[name] || 0, h);
+        put(h.look.longHair ? 'hairLong' : 'hair', ang.head, h);
+        if (h.armed && !dead) put('gun', ang.armR, h, '#1a1a1a');
         n++;
       }
       for (const [name, m] of Object.entries(meshes)) {
-        m.count = name === 'gun' ? guns : n;
+        m.count = counts[name];
         m.instanceMatrix.needsUpdate = true;
         if (m.instanceColor) m.instanceColor.needsUpdate = true;
       }
