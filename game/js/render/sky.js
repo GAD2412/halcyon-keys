@@ -14,13 +14,31 @@ const frag = `
 uniform vec3 topColor; uniform vec3 horizonColor; uniform vec3 groundColor;
 uniform vec3 sunDir; uniform vec3 sunColor; uniform float sunSize; uniform float stars;
 varying vec3 vDir;
+uniform float cloudShade;
 float hash(vec3 p) { return fract(sin(dot(p, vec3(12.9898, 78.233, 45.164))) * 43758.5453); }
+float hash2(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float noise2(vec2 p) {
+  vec2 i = floor(p), f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(hash2(i), hash2(i + vec2(1.0, 0.0)), f.x), mix(hash2(i + vec2(0.0, 1.0)), hash2(i + vec2(1.0, 1.0)), f.x), f.y);
+}
+float fbm(vec2 p) { float v = 0.0, a = 0.5; for (int i = 0; i < 5; i++) { v += a * noise2(p); p *= 2.03; a *= 0.5; } return v; }
 void main() {
   vec3 d = normalize(vDir);
   float h = d.y;
   vec3 col = mix(horizonColor, topColor, pow(clamp(h, 0.0, 1.0), 0.42));
   col = mix(col, groundColor, smoothstep(0.0, -0.12, h));
   float sd = max(dot(d, normalize(sunDir)), 0.0);
+  // streaky sunset clouds projected on a high plane, lit warm on the sun side
+  if (h > 0.0) {
+    vec2 uv = d.xz / (h + 0.08) * 0.9;
+    float c = fbm(uv * vec2(1.0, 2.6) + vec2(3.1, 1.7));
+    float cover = smoothstep(0.44, 0.66, c) * smoothstep(0.01, 0.08, h) * (1.0 - smoothstep(0.4, 0.75, h));
+    vec3 lit = mix(horizonColor * 1.25 + vec3(0.12, 0.02, 0.06), sunColor * 1.9 + vec3(0.2, 0.06, 0.1), pow(sd, 2.0));
+    vec3 shade = topColor * 0.55 + vec3(0.16, 0.08, 0.16);
+    vec3 cloudCol = mix(shade, lit, smoothstep(0.46, 0.72, c));
+    col = mix(col, cloudCol * cloudShade, cover * 0.9);
+  }
   col += sunColor * pow(sd, 6.0) * 0.45;
   col += sunColor * pow(sd, 60.0) * 0.9;
   col += sunColor * smoothstep(1.0 - sunSize, 1.0 - sunSize * 0.6, sd) * 3.0;
@@ -37,7 +55,7 @@ void main() {
 export function createSky(scene, renderer) {
   const uniforms = {
     topColor: { value: new THREE.Color() }, horizonColor: { value: new THREE.Color() }, groundColor: { value: new THREE.Color() },
-    sunDir: { value: new THREE.Vector3(-0.8, 0.2, 0.3) }, sunColor: { value: new THREE.Color() }, sunSize: { value: 0.0016 }, stars: { value: 0 },
+    sunDir: { value: new THREE.Vector3(-0.8, 0.2, 0.3) }, sunColor: { value: new THREE.Color() }, sunSize: { value: 0.0016 }, stars: { value: 0 }, cloudShade: { value: 1 },
   };
   const material = new THREE.ShaderMaterial({ vertexShader: vert, fragmentShader: frag, uniforms, side: THREE.BackSide, depthWrite: false, fog: false });
   const dome = new THREE.Mesh(new THREE.SphereGeometry(2500, 32, 16), material);

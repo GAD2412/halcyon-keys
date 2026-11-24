@@ -45,6 +45,7 @@ export function createDayNightCycle({ scene, renderer, hemi, sun, sunDir, sky })
     mixHex(a.sun, b.sun, t, sky.uniforms.sunColor.value);
     sky.uniforms.sunColor.value.multiplyScalar(night ? 0 : 1);
     sky.uniforms.stars.value = n('stars');
+    sky.uniforms.cloudShade.value = 1 - n('glow') * 0.55;
     mixHex(a.fog, b.fog, t, scene.fog.color);
     scene.fog.density = n('fogD');
     mixHex(a.hemiS, b.hemiS, t, hemi.color);

@@ -1,7 +1,9 @@
 /* Title screen and pause menu. */
 .screen { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; }
 #title-screen { align-items: flex-start; justify-content: center; padding: 0 6vw; background: linear-gradient(90deg, rgba(14,8,30,0.82) 0%, rgba(14,8,30,0.45) 45%, rgba(14,8,30,0) 75%); }
-#title-logo { width: min(620px, 52vw); height: auto; }
+#title-logo { width: min(560px, 46vw); height: auto; }
+#title-screen .features { position: absolute; right: 3vw; bottom: 4vh; max-width: min(520px, 42vw); margin: 0; font-size: 14.5px; line-height: 1.4; }
+#title-screen .title-hint { position: absolute; left: 6vw; bottom: 3vh; margin: 0; }
 .tagline { font-size: 22px; font-weight: 600; letter-spacing: 2px; margin: 0 0 18px 6px; color: #ffd9b0; text-shadow: 0 2px 6px rgba(0,0,0,0.6); }
 .title-menu { display: flex; flex-direction: column; gap: 8px; margin-left: 6px; }
 .menu-btn { pointer-events: auto; font-family: var(--hk-font); font-size: 24px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; text-align: left; color: #fff; background: rgba(10,14,28,0.55); border: none; border-left: 5px solid transparent; padding: 9px 22px; min-width: 280px; cursor: pointer; }

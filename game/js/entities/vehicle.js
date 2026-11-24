@@ -49,7 +49,8 @@ export class Vehicle {
     // steering: eases in, narrows with speed
     this.steer += (c.steer - this.steer) * Math.min(1, dt * 7);
     const absV = Math.abs(this.speed);
-    const steerAngle = this.steer * 0.62 / (1 + absV * 0.045);
+    // steering narrows with speed so the car stays planted on the boulevard but turns tight in town
+    const steerAngle = this.steer * 0.62 / (1 + absV * 0.085);
     const wheelbase = s.len * 0.62;
     let yawRate = (this.speed / wheelbase) * Math.tan(steerAngle);
     if (c.handbrake && absV > 6) yawRate *= 1.45;

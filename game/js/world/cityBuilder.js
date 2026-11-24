@@ -111,6 +111,12 @@ export function buildCity(scene, dayNight) {
       ch.detail.box(ux, roofY + 1, uz, rnd.range(2, 4), 2, rnd.range(2, 4), vcolor('#b9bcc0'));
     }
     if (b.trim) {
+      // ocean-view balconies with glass rails on every floor of the beach face
+      const face = b.x - b.w / 2;
+      for (let fy = 4.4; fy < b.h - 2.5; fy += 3.5) {
+        ch.detail.box(face - 0.65, fy, b.z, 1.3, 0.2, b.d * 0.8, vcolor('#fbf6ec'));
+        ch.detail.box(face - 1.25, fy + 0.55, b.z, 0.08, 0.9, b.d * 0.8, vcolor('#a9dbe8'));
+      }
       // deco fins and a coloured stripe on the beach face
       const trim = vcolor(rnd.pick(['#ffffff', '#3fb8b0', '#f2789a', '#f6c35a']));
       ch.detail.box(b.x - b.w / 2 - 0.3, b.h / 2, b.z, 0.6, b.h + 2, 3, trim);
