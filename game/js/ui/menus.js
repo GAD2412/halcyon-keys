@@ -56,7 +56,7 @@ export function createMenus(G) {
         <div class="side-col"><h2>Port Halcyon</h2><div class="progress-big">${pr.completion()}%</div><div>complete</div>
         <div class="legend"><span><i style="background:#ffd23a"></i>Objective</span><span><i style="background:#ff6f61"></i>Mission start</span>
         <span><i style="background:#ff3a4a"></i>PHPD unit</span><span><i style="background:#c86bff"></i>GPS route</span>
-        <span><i style="background:#4aa8ff"></i>Street race</span><span><i style="background:#fff"></i>Landmark</span>
+        <span><i style="background:#4aa8ff"></i>Street race</span><span><i style="background:#ffc21a"></i>Stunt jump</span><span><i style="background:#fff"></i>Landmark</span>
         <span><i style="background:#f2b8a8"></i>Flamingo Mile</span><span><i style="background:#9fc3dc"></i>Glasswater</span>
         <span><i style="background:#e7c48f"></i>Lantern Quarter</span><span><i style="background:#c4a58a"></i>Rustline Yards</span>
         <span><i style="background:#a9b4c0"></i>Ninefold Docks</span><span><i style="background:#a8d58f"></i>Mango Hill</span></div>

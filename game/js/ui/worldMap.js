@@ -3,6 +3,7 @@
 import { DISTRICTS, PLACES } from '../world/cityPlan.js';
 import { MAP_MIN, MAP_SIZE } from './cityMapPainter.js';
 import { gpsRoute } from './minimap.js';
+import { JUMPS } from '../systems/stuntJumps.js';
 
 // the framed part of the world: the city, its beaches and a strip of sea
 const VX = -525, VZ = -455, VS = 985;
@@ -29,6 +30,15 @@ export function drawWorldMap(canvas, G) {
   ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.fillText('HALCYON BAY', X(100), Z(505));
   ctx.save(); ctx.translate(X(-500), Z(-120)); ctx.rotate(-Math.PI / 2); ctx.fillText('PACIFIC SHELF', 0, 0); ctx.restore();
   const p = G.player, px = p.vehicle ? p.vehicle.x : p.x, pz = p.vehicle ? p.vehicle.z : p.z;
+  // stunt ramps: yellow chevrons, greyed once cleared
+  JUMPS.forEach(([x, z, h], i) => {
+    const cleared = G.stunts.cleared(i);
+    ctx.save(); ctx.translate(X(x), Z(z)); ctx.rotate(Math.PI - h);
+    ctx.fillStyle = cleared ? '#8a8a8a' : '#ffc21a'; ctx.strokeStyle = '#000'; ctx.lineWidth = 2;
+    const k = S * 0.011;
+    ctx.beginPath(); ctx.moveTo(0, -k * 1.2); ctx.lineTo(k, k); ctx.lineTo(0, k * 0.3); ctx.lineTo(-k, k); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.restore();
+  });
   for (const r of G.side.races) {
     ctx.fillStyle = '#4aa8ff'; ctx.beginPath(); ctx.arc(X(r.start.x), Z(r.start.z), S * 0.012, 0, 7); ctx.fill();
     ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.stroke();

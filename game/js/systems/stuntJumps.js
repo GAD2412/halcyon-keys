@@ -38,6 +38,7 @@ export function createStuntJumps(G) {
   return {
     total: ramps.length,
     count: () => done.size,
+    cleared: (i) => done.has(i),
     update() {
       const v = G.player.vehicle;
       if (flight && flight.v !== v) flight = null;
