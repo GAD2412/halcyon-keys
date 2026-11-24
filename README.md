@@ -20,7 +20,7 @@
 - **Combat:** fists, the Tamsin 9 pistol and the Hornet SMG; health and armor; tracers, muzzle flashes and hit markers.
 - **Story:** nine missions in three acts (steal and deliver, tail a truck unseen, defend the night market, timed courier drops, a stakeout, an armored-truck heist, wrecking a convoy, a four-star escape) with dialogue cards and procedural portraits; cash, respect and ranks.
 - **Street races:** three routes (Flamingo Mile Sprint, Glasswater Loop, Dockside Dash) against three rival drivers, with your position, checkpoint and time on the HUD and the rivals on the minimap.
-- **Side activities:** Halcyon Cabs taxi fares (press T in a cab) and 20 lost postcards hidden around the city; everything counts toward the completion tracker.
+- **Side activities:** Halcyon Cabs taxi fares (press T in a cab), 8 stunt ramps on the beaches and in the parks, and 20 lost postcards hidden around the city; everything counts toward the completion tracker.
 - **HUD and menus:** rotating minimap with GPS route, police and helicopter blips; stars, cash, weapon, dispatch roster, speedometer and radio; title screen; pause menu with city map, story, stats, features, controls, settings and three save slots plus autosave.
 - **Look and sound:** golden-hour lighting with sunset clouds and a full day-night cycle, neon nights with rain and wet roads, live traffic signals, painted facades; synthesised engine, sirens, gunshots, explosions and three procedural radio stations.
 

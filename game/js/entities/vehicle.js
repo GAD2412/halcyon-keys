@@ -21,6 +21,7 @@ export class Vehicle {
     this.vx = 0; this.vz = 0; this.speed = 0; this.lateral = 0; this.yawRate = 0;
     this.controls = { throttle: 0, brake: 0, steer: 0, handbrake: false };
     this.steer = 0; this.roll = 0; this.pitch = 0;
+    this.y = 0; this.vy = 0; this.air = false;   // height above the road: ramps and stunt jumps
     this.health = 100; this.wrecked = false; this.fireTime = 0;
     this.driver = null;      // 'player' | 'ai' | null
     this.role = 'traffic';   // 'traffic' | 'police' | 'parked' | 'mission'
@@ -84,8 +85,17 @@ export class Vehicle {
     this.collideWorld();
     // visual body roll and pitch
     this.roll += (clamp(-vr * 0.012 - this.steer * absV * 0.0016, -0.09, 0.09) - this.roll) * Math.min(1, dt * 6);
-    const accelPitch = -(c.throttle - c.brake) * 0.025;
+    const accelPitch = this.air ? clamp(-this.vy * 0.03, -0.35, 0.3) : -(c.throttle - c.brake) * 0.025;
     this.pitch += (accelPitch - this.pitch) * Math.min(1, dt * 4);
+    // ballistic flight off a ramp; a hard landing jolts the car
+    if (this.air) {
+      this.y += this.vy * dt; this.vy -= 22 * dt;
+      if (this.y <= 0) {
+        this.y = 0; this.air = false;
+        if (this.vy < -9) { this.impact(-this.vy * 0.7, this.x, this.z); this.G.effects?.smoke(this.x, 0.4, this.z, 2.2, 0.8); }
+        this.vy = 0;
+      }
+    }
 
     // damage effects
     const fx = this.G.effects;
@@ -143,7 +153,7 @@ export class Vehicle {
   }
 
   sync(dt = 0) {
-    this.mesh.position.set(this.x, 0.0, this.z);
+    this.mesh.position.set(this.x, this.y, this.z);
     this.mesh.rotation.set(this.pitch, this.heading, this.roll, 'YXZ');
     if (this.bar) {
       this.lightPhase += dt * 9;
