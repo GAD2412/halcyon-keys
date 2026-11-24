@@ -33,6 +33,14 @@ export const nearestGrid = (v) => Math.max(CITY_MIN, Math.min(CITY_MAX, Math.rou
 export const onRoadNS = (x, z) => Math.abs(x - nearestGrid(x)) <= ROAD_HALF + 1 && z >= CITY_MIN - 10 && z <= CITY_MAX + 10;
 export const onRoadEW = (x, z) => Math.abs(z - nearestGrid(z)) <= ROAD_HALF + 1 && x >= CITY_MIN - 10 && x <= CITY_MAX + 10;
 
+// Walking surface height: raised sidewalks, roads, boardwalk and sand.
+export function groundHeight(x, z) {
+  const inCity = x >= CITY_MIN - 7 && x <= CITY_MAX + 7 && z >= CITY_MIN - 7 && z <= CITY_MAX + 7;
+  if (!inCity) return (x < CITY_MIN - 7 && x > CITY_MIN - 17) || (z > CITY_MAX + 7 && z < CITY_MAX + 17) ? 0.14 : 0.02;
+  const rx = Math.abs(x - nearestGrid(x)), rz = Math.abs(z - nearestGrid(z));
+  return rx <= ROAD_HALF || rz <= ROAD_HALF ? 0.03 : 0.16;
+}
+
 const PALETTES = {
   flamingo: ['#f6b5c1', '#9fe3d0', '#ffe0a8', '#b8d8f6', '#d9c2f0', '#ffc7a3', '#f7f0e2', '#a6e1e8'],
   glasswater: ['#e6edf2', '#d4e2ea', '#c8d9e6', '#f0f0ea', '#dfe6ee'],
