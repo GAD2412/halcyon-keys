@@ -133,7 +133,10 @@ export function createMissionDirector(G) {
       if (s?.type === 'destroy') { const c = active.data.cars || []; objective = `${s.text}: <b>${c.filter((v) => v.wrecked).length}/${c.length}</b>`; }
       if (s?.type === 'hold') objective = `${s.text}: <b>${Math.floor(active.data.t)}/${s.time} s</b>`;
       const idx = MISSIONS.indexOf(m);
-      return { kicker: `${m.act} · Mission ${idx + 1}`, title: m.title, objective, index: active.index, total: m.steps.length };
+      // the step after this one (skipping dialogue), or the payout when this is the last
+      const after = m.steps.slice(active.index + 1).find((q) => q.type !== 'dialogue');
+      const nextText = after ? after.text : `Payout <b>$${m.reward.toLocaleString('en-US')}</b> · +${m.respect} respect`;
+      return { kicker: `${m.act} · Mission ${idx + 1}`, title: m.title, objective, next: nextText, index: active.index, total: m.steps.length };
     },
     timer: () => (step()?.type === 'checkpoints' ? Math.max(0, active.data.t) : null),
     // a gang fight the story asked for: gunfire and gang takedowns here don't bring the police on their own

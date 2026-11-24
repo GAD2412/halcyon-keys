@@ -91,7 +91,12 @@ export function createPoliceDispatch(G) {
       const p = G.player;
       const list = units.filter((u) => !u.wrecked).map((u) => ({ name: u.callsign, d: Math.hypot(u.x - p.x, u.z - p.z), status: u.ai?.kind === 'roadblock' ? 'ROADBLOCK' : u.ai?.deployed ? 'ON FOOT' : Math.hypot(u.x - p.x, u.z - p.z) < 18 ? 'RAMMING' : 'PURSUIT' }));
       if (heli && !heli.leaving) list.push({ name: 'MANTA-1', d: Math.hypot(heli.x - p.x, heli.z - p.z), status: 'AIR' });
-      return list.sort((a, b) => a.d - b.d).slice(0, 5);
+      list.sort((a, b) => a.d - b.d);
+      const top = list.slice(0, 5);
+      // a roadblock up ahead always gets a line, even when closer units fill the roster
+      const rb = list.find((r) => r.status === 'ROADBLOCK');
+      if (rb && !top.includes(rb)) top[4] = rb;
+      return top;
     },
     update(dt) {
       const stars = G.wanted.stars;

@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { Vehicle } from '../entities/vehicle.js';
 import { createHuman } from '../entities/characterModel.js';
 import { createHelicopter } from '../entities/helicopter.js';
+import { vehicleMaterials } from '../entities/vehicleModels.js';
 import { spawnGangMember } from '../ai/gangAI.js';
 import { groundHeight } from '../world/cityPlan.js';
 import { rng, createRandom } from '../core/random.js';
@@ -66,7 +67,14 @@ export function stageShot(G, name) {
     // the Kestrel drifts north toward the camera; the chase fills the boulevard behind it
     const Z = 40; // mid-block, clear of signal posts
     const kes = car('kestrel', -397.8, 100 + Z, Math.PI + 0.22, '#ff5a3c', 39);
-    kes.roll = 0.06; kes.drifting = true; kes.controls.throttle = 1; kes.driver = null; kes.sync();
+    kes.roll = 0.06; kes.drifting = true; kes.controls.throttle = 1; kes.driver = null; kes.health = 62; kes.sync();
+    // a cruiser that lost the PIT duel, wrapped around a lamp post and burning
+    const wreck = cop('reef', -390.6, 151, 2.5, 0, 0);
+    G.effects.flash(wreck.x, 1.6, wreck.z, 34, 1, 0.45, 0.1, 999);
+    Object.assign(wreck, { wrecked: true, health: 0, sirenOn: false });
+    wreck.body.material = vehicleMaterials().lights.burnt;
+    for (let i = 0; i < 26; i++) G.effects.fire(wreck.x + r.range(-1.6, 1.6), r.range(0.6, 2.4), wreck.z + r.range(-1.8, 1.8));
+    for (let i = 0; i < 14; i++) G.effects.smoke(wreck.x + r.range(-0.8, 0.8) + i * 0.15, 2.2 + i * 0.9, wreck.z + r.range(-0.8, 0.8), 1.6 + i * 0.18, 0.12, 0.62);
     p.enter(kes); p.x = kes.x; p.z = kes.z;
     smokeTrail(-397.2, 103 + Z, 0.25, 1, 10);
     smokeTrail(-399.4, 103.2 + Z, 0.3, 1, 8);
@@ -102,6 +110,10 @@ export function stageShot(G, name) {
     person('ped', -412.4, 118 + Z, -Math.PI / 2 - 0.2, 'run', 2.2);
     person('ped', -414.5, 126 + Z, -Math.PI / 2 + 0.5, 'run', 5.1);
     person('ped', -390.6, 97 + Z, Math.PI / 2 + 0.5, 'handsup');
+    // close to the camera on the hotel sidewalk: people sprinting away from the chase
+    person('ped', -390.1, 132.2, Math.PI + 0.35, 'run', 0.9);
+    person('ped', -391.3, 134.6, Math.PI - 0.25, 'run', 3.3);
+    person('ped', -389.4, 141.5, Math.PI + 0.1, 'run', 5.2);
     person('ped', -389.9, 108 + Z, 0.3, 'run', 1.7);
     person('ped', -391.2, 116 + Z, Math.PI / 2, 'cower');
     person('ped', -389.6, 128 + Z, Math.PI / 2 + 0.3, 'run', 4.4);

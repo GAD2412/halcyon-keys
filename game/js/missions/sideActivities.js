@@ -107,7 +107,7 @@ export function createSideActivities(G) {
     },
     timer: () => (race ? Math.max(0, race.t) : null),
     card() {
-      if (race) return { kicker: 'Street race', title: race.r.name, objective: race.countdown > 0 ? `Get ready… <b>${Math.ceil(race.countdown)}</b>` : `Position <b>${position()}/4</b> · Checkpoint <b>${race.i + 1}/${race.r.points.length}</b>`, index: race.i, total: race.r.points.length };
+      if (race) return { kicker: 'Street race', title: race.r.name, objective: race.countdown > 0 ? `Get ready… <b>${Math.ceil(race.countdown)}</b>` : `Position <b>${position()}/4</b> · Checkpoint <b>${race.i + 1}/${race.r.points.length}</b>`, next: race.i + 1 < race.r.points.length ? `Checkpoint ${race.i + 2} · win <b>$${race.r.reward}</b>` : `Finish line · win <b>$${race.r.reward}</b>`, index: race.i, total: race.r.points.length };
       if (fare) return { kicker: 'Halcyon Cabs', title: fare.stage === 'pickup' ? 'Pick up the fare' : 'Drop off the fare', objective: fare.stage === 'pickup' ? `Stop by the green marker in <b>${DISTRICTS[districtAt(fare.x, fare.z)].name}</b>` : `Drive to <b>${DISTRICTS[districtAt(fare.dx, fare.dz)].name}</b> · tip falls with time`, index: fare.stage === 'pickup' ? 0 : 1, total: 2 };
       return null;
     },
