@@ -24,6 +24,8 @@ import { createDayNightCycle } from './render/dayNightCycle.js';
 import { createLightGlows } from './render/lightGlows.js';
 import { createEffects, createSkidMarks } from './render/effects.js';
 import { createCameraRig } from './render/cameraRig.js';
+import { createWeather } from './render/weather.js';
+import { signalState } from './ai/trafficSignals.js';
 import { createCrowdRenderer } from './entities/characterModel.js';
 import { paintCityMap } from './ui/cityMapPainter.js';
 import { input, attachInput } from './core/input.js';
@@ -57,6 +59,8 @@ G.dayNight.nightObjects.push(...props.nightMeshes);
 G.glows = createLightGlows(R.scene);
 G.glows.addStatic(city.glowPoints); G.glows.addStatic(G.coast.glowPoints); G.glows.addStatic(props.glowPoints);
 G.effects = createEffects(R.scene);
+G.weather = createWeather(R.scene, { roadMaterials: city.roadMaterials });
+G.signalLamps = props.signalLamps;
 G.skids = createSkidMarks(R.scene);
 G.crowd = createCrowdRenderer(R.scene);
 G.mapScale = 1;
@@ -148,7 +152,7 @@ document.addEventListener('pointerlockchange', () => { if (!input.locked() && G.
 
 // ---- frame update
 function update(dt) {
-  if (G.mode === 'shot') { G.effects.update(dt * 0.0001); return; }
+  if (G.mode === 'shot') { G.effects.update(dt * 0.0001); G.weather.update(0, G.camera, G.dayNight.state.isNight, G.time); return; }
   if (G.mode === 'pause') { input.endFrame(); return; }
   G.time += dt;
   const p = G.player;
@@ -175,6 +179,7 @@ function update(dt) {
   for (const v of G.vehicles) v.update(dt);
   resolveVehicleCollisions(G, G.vehicles);
   G.effects.update(dt);
+  G.weather.update(dt, G.camera, G.dayNight.state.isNight, G.time);
   G.coast.update(dt, G.time);
   if (G.mode === 'play') {
     const st = G.progression.stats;
@@ -200,6 +205,14 @@ function render(dt) {
   for (const v of G.vehicles) if (Math.abs(v.x - c.x) < 260 && Math.abs(v.z - c.z) < 260) v.drawGlows(glows, night);
   G.police.drawGlows(glows);
   G.effects.drawGlows(glows);
+  // live traffic signals near the camera
+  for (const s of G.signalLamps) {
+    if (Math.abs(s.x - c.x) > 150 || Math.abs(s.z - c.z) > 150) continue;
+    const st = signalState(s.axis, G.time);
+    if (st === 'red') glows.add(s.x, 5.15, s.z, 1.6, 0.1, 0.05, 3.2);
+    else if (st === 'amber') glows.add(s.x, 4.75, s.z, 1.6, 0.8, 0.05, 3.2);
+    else glows.add(s.x, 4.35, s.z, 0.1, 1.6, 0.5, 3.2);
+  }
   glows.end();
   R.renderer.render(R.scene, G.camera);
   if (G.mode !== 'title') G.hud.update(dt);

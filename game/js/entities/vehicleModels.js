@@ -37,7 +37,18 @@ export function vehicleGeometry(type, paintHex) {
 
   // lower body (doors, sills) and the shoulder line
   const bodyTop = st === 'sports' ? 0.78 : st === 'van' ? 1.05 : st === 'muscle' ? 0.86 : 0.9;
-  mb.box(0, (clear + bodyTop) / 2, 0, s.wid, bodyTop - clear, s.len, lowerPaint, { topColor: paint });
+  // lower body with a rounded shoulder: a straight box topped by a tapered prism
+  const shoulder = st === 'van' ? 0.12 : 0.17;
+  mb.box(0, (clear + bodyTop - shoulder) / 2, 0, s.wid, bodyTop - shoulder - clear, s.len, lowerPaint, { top: false });
+  mb.prism(0, bodyTop - shoulder, 0, W, L, shoulder, { front: 0.16, back: 0.12, side: 0.08 }, paint);
+  // nose and tail taper under the bumpers
+  mb.prism(0, clear, L - 0.05, W - 0.04, 0.1, 0.32, { front: 0.08, side: 0.06 }, lowerPaint);
+  // wheel arches, door seams and mirrors
+  for (const sx of [-1, 1]) {
+    for (const sz of [-1, 1]) mb.box(sx * (W + 0.005), (st === 'van' ? 0.4 : 0.36) + 0.12, sz * L * 0.66, 0.03, 0.34, (st === 'van' ? 0.4 : 0.36) * 2.5, vcolor('#16181c'));
+    mb.box(sx * (W + 0.004), (clear + bodyTop) / 2 + 0.05, L * 0.12, 0.01, bodyTop - clear - 0.2, 0.025, vcolor('#202226'));
+    if (st !== 'van') mb.box(sx * (W + 0.1), bodyTop + 0.12, L * 0.28, 0.2, 0.1, 0.14, paint);
+  }
   if (police) mb.box(0, bodyTop - 0.12, 0, s.wid + 0.02, 0.14, s.len * 0.9, vcolor('#f4f4f0'));
   if (police) mb.box(0, 0.62, 0, s.wid + 0.03, 0.08, s.len * 0.7, vcolor('#2bd0c4'));
   // bumpers and grille

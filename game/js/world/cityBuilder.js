@@ -214,5 +214,5 @@ export function buildCity(scene, dayNight) {
   collision.addBox(CITY_MAX + 20, -900, CITY_MAX + 60, 900, 50);
   collision.addBox(-900, CITY_MIN - 60, 900, CITY_MIN - 20, 50);
 
-  return { plan, collision, meshes, glowPoints };
+  return { plan, collision, meshes, glowPoints, roadMaterials: [roadMat, crossMat] };
 }

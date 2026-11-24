@@ -64,48 +64,49 @@ export function stageShot(G, name) {
     G.wanted.force(4); G.wanted.seen = true;
     p.selectWeapon('smg'); p.health = 82; p.armor = 64;
     // the Kestrel drifts north toward the camera; the chase fills the boulevard behind it
-    const kes = car('kestrel', -397.8, 100, Math.PI + 0.22, '#ff5a3c', 39);
+    const Z = 40; // mid-block, clear of signal posts
+    const kes = car('kestrel', -397.8, 100 + Z, Math.PI + 0.22, '#ff5a3c', 39);
     kes.roll = 0.06; kes.drifting = true; kes.controls.throttle = 1; kes.driver = null; kes.sync();
     p.enter(kes); p.x = kes.x; p.z = kes.z;
-    smokeTrail(-397.2, 103, 0.25, 1, 10);
-    smokeTrail(-399.4, 103.2, 0.3, 1, 8);
-    for (let i = 1; i < 14; i++) G.skids.add(-396.6 + i * 0.2, 102 + i * 1.3, -399 + i * 0.2, 102 + i * 1.3);
-    cop('reef', -402.6, 109.5, Math.PI - 0.1, 36, 0.4);
-    cop('reef', -393.4, 113.5, Math.PI + 0.12, 35, 3.6);
-    cop('barracuda', -398.6, 122, Math.PI - 0.03, 37, 1.9);
-    cop('reef', -404.9, 134, Math.PI + 0.06, 34, 5.0);
-    // a roadblock waiting further down the boulevard
-    const rb1 = cop('reef', -400.2, 196, Math.PI / 2 + 0.35, 0, 1.2); rb1.ai.kind = 'roadblock';
-    const rb2 = cop('reef', -394.2, 200, -Math.PI / 2 + 0.3, 0, 4.4); rb2.ai.kind = 'roadblock';
-    person('cop', -397.5, 192.5, Math.PI, 'aim'); person('cop', -404.5, 198, Math.PI + 0.2, 'aim');
+    smokeTrail(-397.2, 103 + Z, 0.25, 1, 10);
+    smokeTrail(-399.4, 103.2 + Z, 0.3, 1, 8);
+    for (let i = 1; i < 14; i++) G.skids.add(-396.6 + i * 0.2, 102 + Z + i * 1.3, -399 + i * 0.2, 102 + Z + i * 1.3);
+    cop('reef', -402.6, 109.5 + Z, Math.PI - 0.1, 36, 0.4);
+    cop('reef', -393.4, 113.5 + Z, Math.PI + 0.12, 35, 3.6);
+    cop('barracuda', -398.6, 122 + Z, Math.PI - 0.03, 37, 1.9);
+    cop('reef', -404.9, 134 + Z, Math.PI + 0.06, 34, 5.0);
+    // a roadblock closing the junction behind the chase
+    const rb1 = cop('reef', -400.2, 211, Math.PI / 2 + 0.35, 0, 1.2); rb1.ai.kind = 'roadblock';
+    const rb2 = cop('reef', -394.2, 215, -Math.PI / 2 + 0.3, 0, 4.4); rb2.ai.kind = 'roadblock';
+    person('cop', -397.5, 207.5, Math.PI, 'aim'); person('cop', -404.5, 213, Math.PI + 0.2, 'aim');
     // civilian traffic: a cab braking beside the chase, more cars down the road and across the junction
-    car('cab', -405.25, 103, -0.12, '#f6b62e', 3, { controls: { throttle: 0, brake: 1, steer: 0, handbrake: false } });
-    car('haulit', -405.25, 168, 0, '#f4f1ea', 8);
-    car('pip', -394.75, 176, Math.PI, '#8fd7d0', 0);
-    car('caravel', -401.75, 230, 0, '#2e4a7a', 10);
+    car('cab', -405.25, 103 + Z, -0.12, '#f6b62e', 3, { controls: { throttle: 0, brake: 1, steer: 0, handbrake: false } });
+    car('haulit', -405.25, 236, 0, '#f4f1ea', 8);
+    car('pip', -394.75, 186, Math.PI, '#8fd7d0', 0);
+    car('caravel', -401.75, 262, 0, '#2e4a7a', 10);
     car('brute8', -372, 201.75, Math.PI / 2, '#1f2a44', 10);
     car('caravel', -352, 198.25, -Math.PI / 2, '#8a1f2c', 10);
     // helicopter with its searchlight on the Kestrel
-    const heli = createHelicopter(G, -394.5, 124);
+    const heli = createHelicopter(G, -394.5, 124 + Z);
     heli.y = 15.5; heli.heading = Math.PI - 0.7; heli.aimX = kes.x; heli.aimZ = kes.z;
     G.police.setHeli(heli);
     heli.update(0);
     // crowd fleeing on the boardwalk and the sidewalk
-    person('ped', -409.5, 96, -Math.PI / 2 - 0.5, 'run', 1.2);
-    person('ped', -411.6, 101.5, -Math.PI / 2 + 0.3, 'run', 3.9);
-    person('ped', -410.2, 110, Math.PI - 0.6, 'run', 0.4);
-    person('ped', -413.2, 92, -Math.PI / 2, 'cower');
-    person('ped', -412.4, 118, -Math.PI / 2 - 0.2, 'run', 2.2);
-    person('ped', -414.5, 126, -Math.PI / 2 + 0.5, 'run', 5.1);
-    person('ped', -390.6, 97, Math.PI / 2 + 0.5, 'handsup');
-    person('ped', -389.9, 108, 0.3, 'run', 1.7);
-    person('ped', -391.2, 116, Math.PI / 2, 'cower');
-    person('ped', -389.6, 128, Math.PI / 2 + 0.3, 'run', 4.4);
-    for (let i = 0; i < 16; i++) person('ped', r.range(-462, -424), r.range(90, 220), r.range(-3, 3), r.chance(0.4) ? 'run' : 'idle');
+    person('ped', -409.5, 96 + Z, -Math.PI / 2 - 0.5, 'run', 1.2);
+    person('ped', -411.6, 101.5 + Z, -Math.PI / 2 + 0.3, 'run', 3.9);
+    person('ped', -410.2, 110 + Z, Math.PI - 0.6, 'run', 0.4);
+    person('ped', -413.2, 92 + Z, -Math.PI / 2, 'cower');
+    person('ped', -412.4, 118 + Z, -Math.PI / 2 - 0.2, 'run', 2.2);
+    person('ped', -414.5, 126 + Z, -Math.PI / 2 + 0.5, 'run', 5.1);
+    person('ped', -390.6, 97 + Z, Math.PI / 2 + 0.5, 'handsup');
+    person('ped', -389.9, 108 + Z, 0.3, 'run', 1.7);
+    person('ped', -391.2, 116 + Z, Math.PI / 2, 'cower');
+    person('ped', -389.6, 128 + Z, Math.PI / 2 + 0.3, 'run', 4.4);
+    for (let i = 0; i < 16; i++) person('ped', r.range(-462, -424), r.range(120, 260), r.range(-3, 3), r.chance(0.4) ? 'run' : 'idle');
     G.hud.dialogue.pin({ who: 'lux', text: 'MANTA-1 is right on you! Lose them in the Lantern Quarter, Nico!' });
-    camera([-392.6, 3.5, 86.5], [-399.4, 4.6, 118], 60);
+    camera([-392.6, 3.5, 86.5 + Z], [-399.4, 4.6, 118 + Z], 60);
     G.cameraRig.yaw = 0;
-    finish({ x: -398, z: 112 });
+    finish({ x: -398, z: 112 + Z });
   } else if (name === 'onfoot') {
     // Dusk in the Lantern Quarter night market: a gunfight with the Rustline Kings.
     G.dayNight.setHour(17.95);
@@ -168,6 +169,7 @@ export function stageShot(G, name) {
   } else if (name === 'night') {
     // Neon night in Glasswater: the Hot Wire courier run against the clock, traffic headlights everywhere.
     G.dayNight.setHour(21.6);
+    G.weather.setRain(true);
     G.progression.cash = 15480; G.progression.respect = 760;
     G.missions.loadState({ done: ['homecoming', 'borrowed-paint', 'ninefold-tail', 'lantern-night'] });
     G.missions.startMission('hot-wire');

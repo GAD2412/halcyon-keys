@@ -100,7 +100,7 @@ export function createMenus(G) {
   }
 
   function storyRows(long = false) {
-    return G.missions.list().map((m) => `<div class="story-row ${m.state}"><span class="st">${m.state.toUpperCase()}</span><span>${m.title}${long ? `<small>${m.act} · for ${CAST[m.giver].name} · $${m.reward.toLocaleString('en-US')}</small>` : ''}</span></div>`).join('');
+    return G.missions.list().map((m) => `<div class="story-row ${m.state}${long ? '' : ' compact'}"><span class="st">${m.state.toUpperCase()}</span><span>${m.title}${long ? `<small>${m.act} · for ${CAST[m.giver].name} · $${m.reward.toLocaleString('en-US')}</small>` : ''}</span></div>`).join('');
   }
 
   return {

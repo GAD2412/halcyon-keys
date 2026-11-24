@@ -92,9 +92,10 @@ export function buildStreetProps(scene, plan) {
     if (bl.kind === 'park') for (let i = 0; i < 26; i++) trees.push([bl.x + rnd.range(-36, 36), bl.z + rnd.range(-36, 36), rnd.range(0, 6), rnd.range(0.8, 1.3)]);
     if (bl.district === 'mango' || bl.kind === 'pier-plaza') for (let i = 0; i < 8; i++) palms.push([bl.x + rnd.range(-38, 38), bl.z + rnd.range(-38, 38), rnd.range(0, 6), rnd.range(0.8, 1.2)]);
   }
-  // signal heads on two corners of each inner intersection
+  // signal heads on all four corners: two face north-south traffic, two face east-west traffic
   for (const x of GRID) for (const z of GRID) {
-    signals.push([x + 8.5, z + 8.5, Math.PI]); signals.push([x - 8.5, z - 8.5, 0]);
+    signals.push([x + 8.5, z + 8.5, Math.PI, 1, 'ns']); signals.push([x - 8.5, z - 8.5, 0, 1, 'ns']);
+    signals.push([x + 8.5, z - 8.5, -Math.PI / 2, 1, 'ew']); signals.push([x - 8.5, z + 8.5, Math.PI / 2, 1, 'ew']);
   }
 
   const dummy = new THREE.Object3D();
@@ -129,5 +130,10 @@ export function buildStreetProps(scene, plan) {
   const poolMesh = new THREE.Mesh(pools.build(), new THREE.MeshBasicMaterial({ map: makeGlowTexture(), vertexColors: true, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, polygonOffset: true, polygonOffsetFactor: -4 }));
   poolMesh.visible = false;
   scene.add(poolMesh);
-  return { glowPoints, palmCount: palms.length, nightMeshes: [poolMesh] };
+  // lamp positions of each signal head, so the live red/amber/green state can glow
+  const signalLamps = signals.map(([x, z, r, , axis]) => {
+    const fx = Math.sin(r) * 0.25, fz = Math.cos(r) * 0.25;
+    return { x: x + fx, z: z + fz, axis };
+  });
+  return { glowPoints, palmCount: palms.length, nightMeshes: [poolMesh], signalLamps };
 }
