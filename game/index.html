@@ -1,0 +1,54 @@
+<!doctype html>
+<!--
+  HALCYON KEYS: an original open-world crime game in the browser (three.js r170, no network, no asset files).
+  Port Halcyon: six districts, beach and ocean, day-night cycle. On foot and by car; steal any car; lane traffic
+  with signals; pedestrians who flee; 5-star wanted level with PHPD cruisers, interceptors and the MANTA-1
+  helicopter; pistol and SMG combat; story missions with dialogue; HUD with rotating minimap; pause menu with
+  map, story, features, controls, settings and save/load; synthesised engine, siren, gunshot and radio audio.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HALCYON KEYS</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="./styles/hud.css">
+<link rel="stylesheet" href="./styles/menus.css">
+<script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
+</head>
+<body>
+<canvas id="game-canvas"></canvas>
+<div id="hud-root"></div>
+
+<section id="title-screen" class="screen">
+  <canvas id="title-logo" width="1000" height="300"></canvas>
+  <p class="tagline">Port Halcyon, the Keys. Golden hour never lasts.</p>
+  <div class="title-menu">
+    <button id="btn-new-game" class="menu-btn primary">New Game</button>
+    <button id="btn-continue" class="menu-btn">Continue</button>
+    <button id="btn-load" class="menu-btn">Load Game</button>
+    <button id="btn-title-settings" class="menu-btn">Settings</button>
+  </div>
+  <ul id="features" class="features">
+    <li id="feat-open-world">Open world: Port Halcyon with 6 districts, beach boulevard, docks, downtown towers, pier and Halo Wheel</li>
+    <li id="feat-on-foot-and-driving">On foot and by car: steal any car, arcade drift handling, chase camera, 8 vehicle models</li>
+    <li id="feat-traffic-and-pedestrians">Lane traffic with signals, pedestrians who walk the sidewalks and flee from danger</li>
+    <li id="feat-wanted-and-police">5-star wanted level: PHPD cruisers, interceptors, MANTA-1 helicopter, roadblocks, Busted and Wasted</li>
+    <li id="feat-combat">Combat: fists, Tamsin 9 pistol, Hornet SMG, health and armor, tracers and muzzle flashes</li>
+    <li id="feat-story-missions">Story missions with dialogue cards, procedural portraits, cash and respect rewards</li>
+    <li id="feat-hud-minimap">HUD: rotating minimap with GPS route and police blips, stars, speedometer, mission card</li>
+    <li id="feat-menus-save">Pause menu with city map, story, features, controls, settings and 3 save slots</li>
+    <li id="feat-day-night">Day-night cycle from golden hour to neon night</li>
+    <li id="feat-synth-audio">Synthesised audio: engine, sirens, gunshots, radio station</li>
+  </ul>
+  <p class="title-hint">WASD move · Mouse look · F enter/steal car · Esc pause · M map</p>
+</section>
+
+<section id="pause-menu" class="screen hidden">
+  <nav id="pause-tabs" class="tabs"></nav>
+  <div id="pause-body" class="tab-body"></div>
+</section>
+
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>
