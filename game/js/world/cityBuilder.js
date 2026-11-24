@@ -175,20 +175,72 @@ export function buildCity(scene, dayNight) {
       for (let yy = b.h * 0.42; yy < b.h * 0.84; yy += 2.5) glowPoints.push([b.x - b.w / 2 - 1.2, yy, b.z + b.d * 0.3, cc.r, cc.g, cc.b, 5]);
     }
   }
+  // ---- Lantern Night Market: two rows of striped stalls along an aisle (z = 50), paper lanterns
+  // strung in zigzags between poles over the aisle, brick paving, crates of fruit on the counters.
+  const mk = chunkOf(-250, 50).detail;
+  mk.ground(-292, 30, -208, 70, 0.17, vcolor('#8a5e50'));
+  for (let x = -290; x < -208; x += 4) mk.ground(x, 30, x + 0.12, 70, 0.175, vcolor('#5e3e34'));
+  const STRIPES = ['#e0483a', '#f2b544', '#2fa89a', '#d6508a', '#3b6fd0', '#f07a2a'];
+  const GOODS = ['#ff7a2a', '#ffd23a', '#6ad04a', '#e8343a', '#f2f0e0', '#b05ad8'];
+  const LANTERN = ['#ff2a10', '#ff7a10', '#ffb020', '#e81a10', '#ff3a70', '#ff9010'];
+  for (let row = 0; row < 2; row++) {
+    const f = row ? -1 : 1, z = 50 - f * 9;   // stalls face the aisle
+    for (let i = 0; i < 6; i++) {
+      const x = -282 + i * 12.8, c1 = STRIPES[(i * 2 + row * 3) % 6];
+      mk.box(x, 0.6, z + f * 1.1, 5, 1.1, 1.2, vcolor('#7a4a2e'));                     // counter
+      mk.box(x, 0.62, z + f * 1.72, 5, 0.9, 0.04, vcolor(c1, 0.8));                      // skirt
+      mk.box(x, 1.4, z - f * 1.4, 5.2, 2.8, 0.2, vcolor('#5a3a26'));                    // back wall
+      for (const px of [-2.6, 2.6]) for (const pz of [-1.5, 1.7]) mk.box(x + px, 1.45, z + f * pz, 0.12, 2.9, 0.12, vcolor('#3a2a20'));
+      for (let s = 0; s < 6; s++) mk.box(x - 2.45 + s * 0.98, 2.95, z + f * 0.1, 0.98, 0.1, 3.9, vcolor(s % 2 ? '#f6efe2' : c1));  // striped canopy
+      for (let s = 0; s < 10; s++) mk.box(x - 2.7 + s * 0.6, 2.72, z + f * 2.05, 0.5, 0.42, 0.05, vcolor(s % 2 ? '#f6efe2' : c1));  // scalloped valance
+      for (let g = 0; g < 7; g++) mk.box(x - 2.1 + g * 0.7, 1.28, z + f * (0.85 + (g % 2) * 0.35), 0.5, 0.26 + (g % 3) * 0.06, 0.42, vcolor(GOODS[(g + i + row) % 6]));
+      neon.box(x, 3.35, z + f * 1.95, 2.4, 0.55, 0.08, vcolor(STRIPES[(i + 4 + row) % 6], 1.25));   // lit sign board
+      const sc = new THREE.Color(STRIPES[(i + 4 + row) % 6]);
+      glowPoints.push([x, 3.35, z + f * 2.1, sc.r, sc.g, sc.b, 5]);
+      for (let l = 0; l < 5; l++) {                                                       // lanterns along the valance
+        const lx = x - 2.4 + l * 1.2, lc = LANTERN[(l + i) % 6], cc = new THREE.Color(lc);
+        neon.box(lx, 2.3, z + f * 2.1, 0.26, 0.34, 0.26, vcolor(lc, 0.95));
+        glowPoints.push([lx, 2.3, z + f * 2.1, cc.r * 1.5, cc.g * 1.3, cc.b, 4.6]);
+      }
+    }
+  }
+  // poles at the aisle edges, strings zigzagging across with a gentle sag
+  const poleTop = (k, side) => [-289 + k * 12.8, 5.4, side ? 56.4 : 43.6];
+  for (let k = 0; k < 7; k++) for (const side of [0, 1]) { const [px, , pz] = poleTop(k, side); mk.cylinder(px, 2.8, pz, 0.09, 5.6, vcolor('#2a2220'), { seg: 6 }); }
+  const string = (a, b, sag) => {
+    const n = Math.max(4, Math.round(Math.hypot(b[0] - a[0], b[2] - a[2]) / 1.1));
+    let prev = a;
+    for (let j = 1; j <= n; j++) {
+      const t = j / n, p = [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t - sag * 4 * t * (1 - t), a[2] + (b[2] - a[2]) * t];
+      const dx = p[0] - prev[0], dz = p[2] - prev[2];
+      mk.box((p[0] + prev[0]) / 2, (p[1] + prev[1]) / 2, (p[2] + prev[2]) / 2, Math.hypot(dx, dz), 0.03, 0.03, vcolor('#1a1614'), { rotY: Math.atan2(-dz, dx) });
+      if (j < n) {
+        const lc = LANTERN[Math.abs(j * 7 + Math.round(a[0] + a[2])) % 6], cc = new THREE.Color(lc);
+        neon.box(p[0], p[1] - 0.22, p[2], 0.24, 0.3, 0.24, vcolor(lc, 0.95));
+        glowPoints.push([p[0], p[1] - 0.22, p[2], cc.r * 1.5, cc.g * 1.3, cc.b, 4.4]);
+      }
+      prev = p;
+    }
+  };
+  // the lanterns' warm spill over the aisle after dark
+  for (const lx of [-266, -238]) {
+    const lamp = new THREE.PointLight(0xff8a40, 120, 40, 1.6);
+    lamp.position.set(lx, 6.5, 50);
+    scene.add(lamp);
+    dayNight.nightObjects.push(lamp);
+  }
+  for (let k = 0; k < 6; k++) {
+    string(poleTop(k, 0), poleTop(k + 1, 1), 0.7);
+    string(poleTop(k, 1), poleTop(k + 1, 0), 0.7);
+    string(poleTop(k, 0), poleTop(k + 1, 0), 0.45);
+    string(poleTop(k, 1), poleTop(k + 1, 1), 0.45);
+  }
+
   if (neon.vertexCount) {
     const nm = new THREE.Mesh(neon.build(), new THREE.MeshBasicMaterial({ vertexColors: true }));
     nm.matrixAutoUpdate = false;
     scene.add(nm);
     meshes.push(nm);
-  }
-
-  // ---- night market stalls and lanterns
-  const mk = chunkOf(-250, 50);
-  for (let i = 0; i < 8; i++) {
-    const sx = -268 + (i % 4) * 12, sz = 38 + Math.floor(i / 4) * 24;
-    mk.detail.box(sx, 1.1, sz, 6, 2.2, 3.5, vcolor('#7a5a3a'));
-    mk.detail.prism(sx, 2.2, sz, 3.4, 2.2, 1.2, { side: 3.2, front: 0, back: 0 }, vcolor(rnd.pick(['#e05a4a', '#f2b544', '#3fa89a', '#d65a8a'])));
-    glowPoints.push([sx, 3.8, sz, 1, 0.55, 0.25, 4], [sx + 3, 3.4, sz, 1, 0.3, 0.3, 3]);
   }
 
   // ---- dock cranes (landmarks of Ninefold Docks)

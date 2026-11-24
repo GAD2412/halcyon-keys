@@ -108,42 +108,52 @@ export function stageShot(G, name) {
     G.cameraRig.yaw = 0;
     finish({ x: -398, z: 112 + Z });
   } else if (name === 'onfoot') {
-    // Dusk in the Lantern Quarter night market: a gunfight with the Rustline Kings.
-    G.dayNight.setHour(17.95);
+    // Dusk in the Lantern Night Market: Nico holds the aisle against the Rustline Kings under the
+    // lantern strings while shoppers scatter and a PHPD cruiser pulls up at the far end.
+    G.dayNight.setHour(20.2);
     G.progression.cash = 6820; G.progression.respect = 410;
     G.missions.loadState({ done: ['homecoming', 'borrowed-paint', 'ninefold-tail'] });
     G.missions.startMission('lantern-night');
     G.missions.jumpToStep(1);
     const gang = G.missions.active().data.gang;
-    const spots = [[-229, 45.5, 'aim'], [-224.5, 54, 'aim'], [-219, 48.5, 'run'], [-234, 57, 'dead'], [-237.5, 44.5, 'dead'], [-226, 39.5, 'dead']];
     G.wanted.force(2); G.wanted.seen = true;
     p.selectWeapon('smg'); p.health = 64; p.armor = 22;
-    Object.assign(p, { x: -245, z: 50, y: 0.16, pose: 'aim', aiming: true, aimPitch: 0.03 });
-    p.heading = Math.atan2(-229 + 245, 45.5 - 50);
-    gang.forEach((g, i) => { g.x = spots[i][0]; g.z = spots[i][1]; g.pose = spots[i][2]; g.alert = true; g.y = groundHeight(g.x, g.z); if (g.pose === 'dead') { g.alive = false; g.health = 0; } g.heading = Math.atan2(p.x - g.x, p.z - g.z) + (g.pose === 'run' ? 1.2 : 0); });
+    Object.assign(p, { x: -264.5, z: 48.6, y: groundHeight(-264.5, 48.6), pose: 'aim', aiming: true, aimPitch: 0.02, heading: Math.PI / 2 });
+    // the Kings: four shooting from the aisle and the counters, one diving across, one down
+    const spots = [[-255.5, 49.7, 'aim'], [-251, 45.4, 'aim'], [-247.5, 54.4, 'aim'], [-243, 47.6, 'run'], [-239.5, 52.6, 'aim'], [-259.5, 46.6, 'dead']];
+    gang.forEach((g, i) => {
+      const [x, z, pose] = spots[i];
+      Object.assign(g, { x, z, pose, alert: true, y: groundHeight(x, z), aimPitch: 0 });
+      if (pose === 'dead') { g.alive = false; g.health = 0; }
+      g.heading = Math.atan2(p.x - x, p.z - z) + (pose === 'run' ? -1.3 : 0);
+      if (pose === 'aim') {
+        const mx = x + Math.sin(g.heading) * 1.05 - Math.cos(g.heading) * 0.33, mzz = z + Math.cos(g.heading) * 1.05 + Math.sin(g.heading) * 0.33;
+        G.effects.flash(mx, 1.78, mzz, 7.5);
+        G.effects.tracer(mx, 1.78, mzz, p.x + r.range(1.2, 3), r.range(1.2, 1.9), p.z + r.range(-1.6, 1.6));
+      }
+    });
     G.forceCrosshair = true;
-    const fx = Math.sin(p.heading), fz = Math.cos(p.heading);
-    const mz = { x: p.x + fx * 0.95 - fz * 0.33, z: p.z + fz * 0.95 + fx * 0.33 };
-    // muzzle flashes and tracers in both directions
-    G.effects.flash(mz.x, 1.5, mz.z, 1.7);
-    G.effects.tracer(mz.x, 1.5, mz.z, -229.2, 1.3, 45.6);
-    G.effects.tracer(-229.6, 1.5, 45.8, -244.2, 1.5, 50.6);
-    G.effects.flash(-229.7, 1.5, 45.9, 4);
-    G.effects.flash(-225.2, 1.5, 53.6, 4);
-    G.effects.tracer(-225.3, 1.5, 53.5, -244.4, 1.3, 49.2);
-    G.effects.sparks(-241.5, 1.4, 49.5, 8);
-    G.effects.blood(-229, 1.3, 45.6);
-    // fleeing crowd and stall keepers
-    const crowd = [[-232, 34, 'run', 2.6], [-238, 66, 'cower', 0.4], [-216, 60, 'run', 0.3], [-249, 34, 'cower', 1], [-236, 70, 'run', 0.2], [-222, 32, 'handsup', -1.4], [-212, 41, 'run', 3.6], [-244, 62, 'run', 2.8], [-214, 66, 'run', 0.9]];
+    const mz = { x: p.x + 1.15, z: p.z + 0.34 };
+    G.effects.flash(mz.x, 1.66, mz.z, 3.2);
+    G.effects.tracer(mz.x, 1.78, mz.z, -255.6, 1.55, 49.7);
+    G.effects.tracer(mz.x + 0.4, 1.78, mz.z, -251, 1.45, 45.5);
+    G.effects.sparks(-255.6, 1.6, 49.7, 10);
+    G.effects.sparks(-261, 1.2, 43.2, 8);
+    G.effects.blood(-255.5, 1.5, 49.7);
+    // shoppers scattering toward the camera and diving behind the counters
+    const crowd = [[-260.5, 45.2, 'run', -1.75], [-259, 54.8, 'run', -1.35], [-261.8, 56.2, 'run', -1.6], [-257.5, 52.9, 'run', -2.0],
+      [-257.5, 44, 'cower', 0.5], [-252, 56.6, 'cower', 2.6], [-249, 57, 'handsup', -1.5], [-246, 43.8, 'cower', 1.2],
+      [-262.5, 43.6, 'run', -2.3], [-244.5, 57, 'run', 0.2], [-225.5, 44.2, 'run', 1.4], [-226, 57.4, 'run', 1.9], [-253, 38, 'run', -0.4], [-241, 62.5, 'run', 0.3]];
     for (const [x, z, pose, h] of crowd) person('ped', x, z, h, pose);
-    const cruiser = cop('reef', -198.25, 64, Math.PI + 0.2, 0, 1.0); cruiser.ai.deployed = true;
-    person('cop', -206, 58, -Math.PI / 2, 'run');
-    person('cop', -205, 70, -Math.PI / 2 - 0.3, 'aim');
-    car('cab', -201.75, 20, 0, '#f6b62e', 0);
-    G.hud.dialogue.pin({ who: 'lux', text: "Two by the lantern stall! Keep them off Pearl's people!" });
-    G.cameraRig.yaw = p.heading; G.cameraRig.pitch = 0.1;
-    camera([p.x - fx * 4.3 - fz * 1.15, 2.55, p.z - fz * 4.3 + fx * 1.15], [p.x + fx * 22 - fz * 1.15, 1.2, p.z + fz * 22 + fx * 1.15], 56);
-    finish({ x: -250, z: 45 });
+    // PHPD rolls into the far end of the aisle, light bar blazing
+    const cruiser = cop('reef', -235.5, 44.6, 0.8, 0, 1.0); cruiser.ai.deployed = true;
+    const cruiser2 = cop('reef', -216, 53, -Math.PI / 2 - 0.3, 6, 3.4); cruiser2.ai.deployed = true;
+    person('cop', -240, 47.9, -Math.PI / 2, 'aim');
+    person('cop', -239.5, 42.9, -Math.PI / 2 - 0.3, 'run', 2.2);
+    G.hud.dialogue.clear();
+    G.cameraRig.yaw = p.heading; G.cameraRig.pitch = 0.08;
+    camera([p.x - 3.1, 2.25, p.z + 1.05], [p.x + 20, 1.55, p.z + 1.05], 54);
+    finish({ x: -250, z: 50 });
   } else if (name === 'map') {
     G.dayNight.setHour(16.8);
     G.progression.cash = 15480; G.progression.respect = 760;

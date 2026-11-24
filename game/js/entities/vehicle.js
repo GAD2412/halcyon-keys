@@ -169,10 +169,11 @@ export class Vehicle {
     }
     if (this.bar && this.sirenOn) {
       const a = Math.sin(this.lightPhase) > 0;
-      const y = this.bar.y;
+      const y = this.bar.y + 0.2;   // just above the bar so its own mesh never hides the sprite
       const sideR = { x: this.x + r.x * 0.3 - f.x * 0.1, z: this.z + r.z * 0.3 - f.z * 0.1 };
       const sideL = { x: this.x - r.x * 0.3 - f.x * 0.1, z: this.z - r.z * 0.3 - f.z * 0.1 };
-      if (a) glows.add(sideL.x, y, sideL.z, 1.8, 0.12, 0.15, 17); else glows.add(sideR.x, y, sideR.z, 0.15, 0.4, 2.0, 17);
+      if (a) glows.add(sideL.x, y, sideL.z, 1.8, 0.12, 0.15, 21); else glows.add(sideR.x, y, sideR.z, 0.15, 0.4, 2.0, 21);
+      glows.add(this.x, y + 0.2, this.z, a ? 0.42 : 0.05, 0.04, a ? 0.08 : 0.5, 46);   // wide soft halo washing the street
       glows.add(sideL.x, y, sideL.z, 1.0, 0.05, 0.1, a ? 7 : 4); glows.add(sideR.x, y, sideR.z, 0.1, 0.25, 1.1, a ? 4 : 7);
       glows.add(this.x, y + 0.1, this.z, a ? 0.8 : 0.1, 0.05, a ? 0.1 : 0.9, 8);
     }
