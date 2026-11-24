@@ -123,6 +123,30 @@ export function vehicleGeometry(type, paintHex) {
   return geo;
 }
 
+// Door lettering for PHPD cars: one canvas texture shared by every cruiser.
+let decal = null;
+function doorDecal() {
+  if (decal) return decal;
+  const c = document.createElement('canvas');
+  c.width = 256; c.height = 64;
+  const g = c.getContext('2d');
+  g.fillStyle = '#f4f4f0';
+  g.beginPath();
+  for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + (i * Math.PI) / 5, r = i % 2 ? 11 : 26; g.lineTo(34 + Math.cos(a) * r, 33 + Math.sin(a) * r); }
+  g.fill();
+  g.fillStyle = '#f4f4f0';
+  g.font = '900 46px "Avenir Next Condensed", "Futura", "Helvetica Neue", Arial, sans-serif';
+  g.textBaseline = 'middle';
+  g.fillText('PHPD', 72, 35);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  decal = {
+    geo: new THREE.PlaneGeometry(1.5, 0.375),
+    mat: new THREE.MeshStandardMaterial({ map: tex, transparent: true, roughness: 0.5, polygonOffset: true, polygonOffsetFactor: -2 }),
+  };
+  return decal;
+}
+
 // A car object: body mesh plus, for police, the flashing light bar halves.
 export function buildVehicleMesh(type, paintHex) {
   const { paint, lights } = vehicleMaterials();
@@ -133,6 +157,13 @@ export function buildVehicleMesh(type, paintHex) {
   group.add(body);
   let bar = null;
   if (s.livery === 'police') {
+    // "PHPD" lettering with a star badge on both front doors
+    for (const side of [-1, 1]) {
+      const decal = new THREE.Mesh(doorDecal().geo, doorDecal().mat);
+      decal.position.set(side * (s.wid / 2 + 0.014), s.style === 'sports' ? 0.5 : 0.52, 0.15);
+      decal.rotation.y = side * Math.PI / 2;
+      group.add(decal);
+    }
     const y = (s.style === 'sports' ? 1.2 : 1.48) + 0.17;
     const geo = new THREE.BoxGeometry(0.55, 0.14, 0.3);
     const red = new THREE.Mesh(geo, lights.red), blue = new THREE.Mesh(geo, lights.blue);

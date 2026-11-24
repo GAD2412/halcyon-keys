@@ -66,6 +66,23 @@ export function makeFacade(styleName, seed = 7) {
   return { map, emissive, tileW, tileH };
 }
 
+// Shop signs: one row per name, neon letters on a dark board.
+export function makeShopSignAtlas(names) {
+  const INK = ['#ff4fa8', '#3ff0e0', '#ffc24a', '#9dff6a', '#fff4dc', '#ff7a4a'];
+  return canvasTexture(512, 64 * names.length, (g, w) => {
+    names.forEach((name, i) => {
+      const y = i * 64;
+      g.fillStyle = '#141018'; g.fillRect(0, y, w, 64);
+      g.fillStyle = INK[i % INK.length];
+      g.font = '900 44px "Avenir Next Condensed", "Futura", "Helvetica Neue", Arial, sans-serif';
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.shadowColor = INK[i % INK.length]; g.shadowBlur = 10;
+      g.fillText(name, w / 2, y + 34, w - 24);
+      g.shadowBlur = 0;
+    });
+  }, { repeat: false });
+}
+
 export function makeRoadTexture() {
   return canvasTexture(256, 256, (g, W, H) => {
     g.fillStyle = '#3b3d42'; g.fillRect(0, 0, W, H);

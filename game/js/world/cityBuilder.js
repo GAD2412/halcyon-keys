@@ -3,12 +3,13 @@
 // and per material so the whole city draws in a few dozen calls. Registers every solid box for collisions.
 import * as THREE from 'three';
 import { MeshBuilder, vcolor } from '../render/meshBuilder.js';
-import { makeFacade, makeRoadTexture, makeIntersectionTexture, makeTileTexture } from '../render/facadeTextures.js';
+import { makeFacade, makeRoadTexture, makeIntersectionTexture, makeTileTexture, makeShopSignAtlas } from '../render/facadeTextures.js';
 import { buildCityPlan, GRID, ROAD_HALF, DISTRICTS, CITY_MIN, CITY_MAX } from './cityPlan.js';
 import { createCollisionMap } from './collisionMap.js';
 import { createRandom } from '../core/random.js';
 
 const STYLE_LIST = ['deco', 'glass', 'stucco', 'warehouse'];
+const SHOP_NAMES = ["PEARL'S", 'TACO KEY', 'HALO CAFE', 'KEYS BODEGA', 'NEON NOODLE', 'SURF SHOP', 'LUCKY 9', 'MANGO JUICE', 'TIDE PAWN', 'PHARMACY', 'PIZZA', 'HOTEL'];
 
 export function buildCity(scene, dayNight) {
   const plan = buildCityPlan();
@@ -91,6 +92,7 @@ export function buildCity(scene, dayNight) {
     return m;
   });
   const shopGlass = [new MeshBuilder(), new MeshBuilder()];
+  const signs = new MeshBuilder();
   const neon = new MeshBuilder();
   const SIGNS = ['#ff4fa8', '#3ff0e0', '#ffb03f', '#7a6bff', '#4dff9a', '#ff5a3c', '#f6f0e0'];
   const AWNINGS = ['#d0453a', '#2a8f84', '#e9a23b', '#3b6fb0', '#f2789a', '#5a4a8a'];
@@ -115,8 +117,13 @@ export function buildCity(scene, dayNight) {
         put(ch.detail, 0.9, 2.95, 0.12, 1.6, L * 0.92, vcolor(ac));
         put(ch.detail, 1.68, 2.78, 0.34, 0.05, L * 0.92, vcolor(ac, 0.7));
       }
-      const sc = rnd.pick(SIGNS), sl = Math.min(L * 0.45, 7), sa = rnd.range(-L / 4, L / 4);
-      put(neon, 0.22, 3.2, 0.5, 0.08, sl, vcolor(sc, 1.05), sa);
+      const sc = rnd.pick(SIGNS), sl = Math.min(L * 0.5, 7.6), sa = rnd.range(-L / 5, L / 5);
+      put(neon, 0.22, 3.3, 1.08, 0.08, sl + 0.2, vcolor(sc, 1.05), sa);
+      // the shop's name, lettered on a dark board inside the lit frame
+      const row = rnd.int(0, SHOP_NAMES.length - 1), hl = sl / 2, hh = 0.46;
+      const cx = fx + nx * 0.27 + (nx ? 0 : sa), cz = fz + nz * 0.27 + (nz ? 0 : sa), rx = nz, rz = -nx;
+      const v0 = 1 - (row + 1) / SHOP_NAMES.length, v1 = 1 - row / SHOP_NAMES.length;
+      signs.quad([cx - rx * hl, 3.3 - hh, cz - rz * hl], [cx + rx * hl, 3.3 - hh, cz + rz * hl], [cx + rx * hl, 3.3 + hh, cz + rz * hl], [cx - rx * hl, 3.3 + hh, cz - rz * hl], [nx, 0, nz], vcolor('#ffffff'), [0, v0, 1, v0, 1, v1, 0, v1]);
       if (b.district === 'glasswater' || b.district === 'flamingo' || b.district === 'lantern') {
         const cc = new THREE.Color(sc);
         glowPoints.push([fx + nx * 0.5 + (nx ? 0 : sa), 3.2, fz + nz * 0.5 + (nz ? 0 : sa), cc.r, cc.g, cc.b, 5]);
@@ -304,6 +311,7 @@ export function buildCity(scene, dayNight) {
 
   // ---- flush chunk builders into meshes
   shopGlass.forEach((mb, i) => addMesh(mb, shopMats[i], { receive: true }));
+  addMesh(signs, new THREE.MeshBasicMaterial({ map: makeShopSignAtlas(SHOP_NAMES) }));
   for (const ch of chunks.values()) {
     for (const s of STYLE_LIST) addMesh(ch[s], facades[s].mat, { cast: true, receive: true });
     addMesh(ch.detail, detailMat, { cast: true, receive: true });
