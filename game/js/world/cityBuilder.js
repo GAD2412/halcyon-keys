@@ -83,6 +83,47 @@ export function buildCity(scene, dayNight) {
   }
   addMesh(grounds, groundMat, { receive: true });
 
+  // ---- storefronts: shop glass (dark by day, lit warm or cool after dark), fascia, awnings and signs
+  const shopMats = ['#ffb46a', '#cfe8ff'].map((c) => {
+    const m = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.18, metalness: 0.35, emissive: c, emissiveIntensity: 0 });
+    m.userData.glowScale = 0.85;
+    dayNight.glowMaterials.push(m);
+    return m;
+  });
+  const shopGlass = [new MeshBuilder(), new MeshBuilder()];
+  const neon = new MeshBuilder();
+  const SIGNS = ['#ff4fa8', '#3ff0e0', '#ffb03f', '#7a6bff', '#4dff9a', '#ff5a3c', '#f6f0e0'];
+  const AWNINGS = ['#d0453a', '#2a8f84', '#e9a23b', '#3b6fb0', '#f2789a', '#5a4a8a'];
+  function storefronts(b, ch) {
+    const bx = Math.floor(b.x / 100) * 100 + 50, bz = Math.floor(b.z / 100) * 100 + 50;
+    const sides = [[1, 0, b.w / 2, b.d], [-1, 0, b.w / 2, b.d], [0, 1, b.d / 2, b.w], [0, -1, b.d / 2, b.w]];
+    const glass = shopGlass[rnd.chance(0.6) ? 0 : 1];
+    for (const [nx, nz, half, len] of sides) {
+      const fx = b.x + nx * half, fz = b.z + nz * half;
+      if ((nx && Math.abs(bx + nx * 43 - fx) > 17) || (nz && Math.abs(bz + nz * 43 - fz) > 17)) continue;   // only faces on a street
+      const L = len - 1.2;
+      const put = (mb, out, y, h, thick, l, col, along = 0) => (nx
+        ? mb.box(fx + nx * out, y, fz + along, thick, h, l, col)
+        : mb.box(fx + along, y, fz + nz * out, l, h, thick, col));
+      put(glass, 0.05, 1.6, 2.4, 0.1, L, vcolor('#1e2a36'));
+      put(ch.detail, 0.08, 0.28, 0.24, 0.16, L + 0.2, vcolor('#2a2a2e'));
+      for (let a = -L / 2; a <= L / 2 + 0.01; a += L / Math.max(1, Math.round(L / 3.2))) put(ch.detail, 0.1, 1.6, 2.4, 0.1, 0.12, vcolor('#30343a'), a);
+      const trim = vcolor(b.color, 0.62);
+      put(ch.detail, 0.1, 3.2, 0.7, 0.18, L + 0.3, trim);
+      if (!b.awning && rnd.chance(0.55)) {
+        const ac = rnd.pick(AWNINGS);
+        put(ch.detail, 0.9, 2.95, 0.12, 1.6, L * 0.92, vcolor(ac));
+        put(ch.detail, 1.68, 2.78, 0.34, 0.05, L * 0.92, vcolor(ac, 0.7));
+      }
+      const sc = rnd.pick(SIGNS), sl = Math.min(L * 0.45, 7), sa = rnd.range(-L / 4, L / 4);
+      put(neon, 0.22, 3.2, 0.5, 0.08, sl, vcolor(sc, 1.05), sa);
+      if (b.district === 'glasswater' || b.district === 'flamingo' || b.district === 'lantern') {
+        const cc = new THREE.Color(sc);
+        glowPoints.push([fx + nx * 0.5 + (nx ? 0 : sa), 3.2, fz + nz * 0.5 + (nz ? 0 : sa), cc.r, cc.g, cc.b, 5]);
+      }
+    }
+  }
+
   // ---- buildings
   for (const b of plan.buildings) {
     const ch = chunkOf(b.x, b.z);
@@ -104,12 +145,21 @@ export function buildCity(scene, dayNight) {
       ch.detail.box(b.x - b.w / 2 + 0.3, roofY + 0.5, b.z, 0.6, 1, b.d, pc);
       ch.detail.box(b.x + b.w / 2 - 0.3, roofY + 0.5, b.z, 0.6, 1, b.d, pc);
     }
-    // rooftop machinery
+    // rooftop machinery: AC units with fan grilles, water tanks on legs, antennas on the towers
     const units = b.style === 'glass' ? 3 : 2;
     for (let i = 0; i < units; i++) {
       const ux = b.x + rnd.range(-b.w / 3, b.w / 3), uz = b.z + rnd.range(-b.d / 3, b.d / 3);
-      ch.detail.box(ux, roofY + 1, uz, rnd.range(2, 4), 2, rnd.range(2, 4), vcolor('#b9bcc0'));
+      ch.detail.box(ux, roofY + 0.8, uz, rnd.range(2, 3.5), 1.6, rnd.range(1.6, 2.6), vcolor('#b9bcc0'));
+      ch.detail.cylinder(ux, roofY + 1.62, uz, 0.55, 0.06, vcolor('#3a3e44'), { seg: 10 });
     }
+    if ((b.style === 'stucco' || b.style === 'deco' || b.style === 'warehouse') && rnd.chance(0.4)) {
+      const tx = b.x + rnd.range(-b.w / 4, b.w / 4), tz = b.z + rnd.range(-b.d / 4, b.d / 4);
+      for (const [ox, oz] of [[-0.9, -0.9], [0.9, -0.9], [-0.9, 0.9], [0.9, 0.9]]) ch.detail.box(tx + ox, roofY + 0.8, tz + oz, 0.14, 1.6, 0.14, vcolor('#3a3430'));
+      ch.detail.cylinder(tx, roofY + 2.8, tz, 1.4, 2.4, vcolor(rnd.pick(['#8a6448', '#9aa0a6', '#6a7a8a'])), { seg: 12 });
+      ch.detail.cylinder(tx, roofY + 4.2, tz, 1.5, 0.4, vcolor('#4a3a30'), { seg: 12, rTop: 0.2 });
+    }
+    if (b.style === 'glass' && rnd.chance(0.5)) ch.detail.cylinder(b.x + b.w * 0.25, roofY + 5, b.z - b.d * 0.2, 0.12, 10, vcolor('#c8ccd2'), { seg: 5 });
+    if (b.style !== 'warehouse' && !b.villa && b.h > 6) storefronts(b, ch);
     if (b.trim) {
       // ocean-view balconies with glass rails on every floor of the beach face
       const face = b.x - b.w / 2;
@@ -155,8 +205,7 @@ export function buildCity(scene, dayNight) {
   }
 
   // ---- neon: tower edge strips and crown bands downtown, sign blades on the deco hotels
-  const neon = new MeshBuilder();
-  const NEON = ['#3ff0ff', '#ff3fd0', '#9a6bff', '#ff8a3f', '#4dff9a'];
+  const NEON =['#3ff0ff', '#ff3fd0', '#9a6bff', '#ff8a3f', '#4dff9a'];
   for (const b of plan.buildings) {
     if (b.style === 'glass' && b.h > 40) {
       const c = NEON[(Math.abs(Math.round(b.x * 7 + b.z * 3)) % NEON.length)];
@@ -254,6 +303,7 @@ export function buildCity(scene, dayNight) {
   }
 
   // ---- flush chunk builders into meshes
+  shopGlass.forEach((mb, i) => addMesh(mb, shopMats[i], { receive: true }));
   for (const ch of chunks.values()) {
     for (const s of STYLE_LIST) addMesh(ch[s], facades[s].mat, { cast: true, receive: true });
     addMesh(ch.detail, detailMat, { cast: true, receive: true });

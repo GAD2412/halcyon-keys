@@ -112,7 +112,8 @@ export function createTraffic(G) {
       const dx = o.x - car.x, dz = o.z - car.z;
       if (Math.abs(dx) > 26 || Math.abs(dz) > 26) continue;
       const fwd = dx * f.x + dz * f.z, lat = Math.abs(dx * r.x + dz * r.z);
-      if (fwd > 0 && fwd < 22 && lat < 2.6) speedCap = Math.min(speedCap, Math.max(0, (fwd - 7.5) * 1.1));
+      const stop = 3 + (car.spec.len + o.spec.len) / 2;   // bumper-to-bumper gap, so buses get room too
+      if (fwd > 0 && fwd < stop + 14 && lat < 2.6) speedCap = Math.min(speedCap, Math.max(0, (fwd - stop) * 1.1));
     }
     for (const h of G.humansOnRoad) {
       const dx = h.x - car.x, dz = h.z - car.z;

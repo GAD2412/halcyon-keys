@@ -81,7 +81,7 @@ export function stageShot(G, name) {
     for (const [x, z] of [[-402, 178.2], [-397.2, 178.6], [-406.6, 177.8], [-392.4, 178.4]]) person('cop', x, z, Math.PI + r.range(-0.15, 0.15), 'aim');
     // civilian traffic: a cab braking beside the chase, cars pulled over, more down the road and across the junction
     car('cab', -405.25, 103 + Z, -0.12, '#f6b62e', 3, { controls: { throttle: 0, brake: 1, steer: 0, handbrake: false } });
-    car('pip', -406.2, 165, -0.08, '#8fd7d0', 0, { controls: { throttle: 0, brake: 1, steer: 0, handbrake: false } });
+    car('coastline', -405.1, 168, -0.03, '#f4f1ea', 0, { controls: { throttle: 0, brake: 1, steer: 0, handbrake: false } });
     car('haulit', -393.6, 160, Math.PI + 0.06, '#f4f1ea', 0, { controls: { throttle: 0, brake: 1, steer: 0, handbrake: false } });
     car('caravel', -394.75, 196, Math.PI, '#2e4a7a', 0);
     car('cab', -405.25, 232, 0, '#f6b62e', 6);
@@ -201,7 +201,7 @@ export function stageShot(G, name) {
     for (const v of [kes, ...rivals]) for (let i = 0; i < 5; i++) G.effects.smoke(v.x + r.range(-0.8, 0.8), 0.35, v.z + 2.6 + i * 0.9, 0.6 + i * 0.12, 0.85, 0.22);
     // city traffic: oncoming headlights, cars held at the junction, a cab the racers are about to pass
     const lanes = [[94.75, -120, 0, 11], [98.25, -150, 0, 10], [94.75, -175, 0, 9], [105.25, -112, Math.PI, 8], [101.75, -140, Math.PI, 7], [112, -98.25, -Math.PI / 2, 0], [88, -101.75, Math.PI / 2, 0], [130, -101.75, Math.PI / 2, 9], [70, -98.25, -Math.PI / 2, 4]];
-    const types = ['cab', 'caravel', 'haulit', 'cab', 'pip', 'brute8', 'caravel', 'pip', 'cab'];
+    const types = ['cab', 'caravel', 'coastline', 'cab', 'pip', 'brute8', 'caravel', 'pip', 'cab'];
     lanes.forEach(([x, z, h, s], i) => car(types[i], x, z, h, null, s));
     for (let i = 0; i < 18; i++) {
       const side = i % 2 ? 91 : 109;
