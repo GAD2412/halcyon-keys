@@ -14,7 +14,7 @@ export const LANE_OFFSETS = [1.75, 5.25];
 export const DISTRICTS = {
   flamingo: { name: 'Flamingo Mile', ground: '#e9dcc4', map: '#f2b8a8', label: [-350, 0] },
   glasswater: { name: 'Glasswater', ground: '#cfd3d6', map: '#9fc3dc', label: [50, 0] },
-  lantern: { name: 'Lantern Quarter', ground: '#ddd0bb', map: '#e7c48f', label: [-200, 120] },
+  lantern: { name: 'Lantern Quarter', ground: '#ddd0bb', map: '#e7c48f', label: [-200, 262] },
   mango: { name: 'Mango Hill', ground: '#a9c48a', map: '#a8d58f', label: [-100, -300] },
   rustline: { name: 'Rustline Yards', ground: '#b9b2a6', map: '#c4a58a', label: [300, -150] },
   docks: { name: 'Ninefold Docks', ground: '#b4b6b4', map: '#a9b4c0', label: [250, 300] },

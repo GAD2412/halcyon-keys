@@ -52,6 +52,7 @@ G.collision = city.collision;
 G.plan = city.plan;
 G.coast = buildCoastline(R.scene, G.collision);
 const props = buildStreetProps(R.scene, city.plan);
+G.dayNight.nightObjects.push(...props.nightMeshes);
 G.glows = createLightGlows(R.scene);
 G.glows.addStatic(city.glowPoints); G.glows.addStatic(G.coast.glowPoints); G.glows.addStatic(props.glowPoints);
 G.effects = createEffects(R.scene);

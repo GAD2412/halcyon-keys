@@ -4,12 +4,16 @@ import { DISTRICTS, PLACES } from '../world/cityPlan.js';
 import { MAP_MIN, MAP_SIZE } from './cityMapPainter.js';
 import { gpsRoute } from './minimap.js';
 
+// the framed part of the world: the city, its beaches and a strip of sea
+const VX = -525, VZ = -455, VS = 985;
+
 export function drawWorldMap(canvas, G) {
   const ctx = canvas.getContext('2d');
-  const S = canvas.width, k = S / MAP_SIZE;
-  const X = (x) => (x - MAP_MIN) * k, Z = (z) => (z - MAP_MIN) * k;
+  const S = canvas.width, k = S / VS;
+  const X = (x) => (x - VX) * k, Z = (z) => (z - VZ) * k;
   ctx.clearRect(0, 0, S, S);
-  ctx.drawImage(G.mapCanvas, 0, 0, S, S);
+  const m = G.mapCanvas.width / MAP_SIZE;
+  ctx.drawImage(G.mapCanvas, (VX - MAP_MIN) * m, (VZ - MAP_MIN) * m, VS * m, VS * m, 0, 0, S, S);
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   for (const d of Object.values(DISTRICTS)) {
     ctx.font = `800 ${Math.round(S * 0.026)}px "Avenir Next Condensed", "Futura", sans-serif`;
@@ -22,7 +26,8 @@ export function drawWorldMap(canvas, G) {
     ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(10,14,28,0.8)'; ctx.strokeText(p.name, X(p.x), Z(p.z) - S * 0.018); ctx.fillStyle = '#ffe7c0'; ctx.fillText(p.name, X(p.x), Z(p.z) - S * 0.018);
   }
   ctx.font = `800 ${Math.round(S * 0.02)}px sans-serif`;
-  ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.fillText('PACIFIC SHELF', X(-520), Z(-300)); ctx.fillText('HALCYON BAY', X(100), Z(515));
+  ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.fillText('HALCYON BAY', X(100), Z(505));
+  ctx.save(); ctx.translate(X(-500), Z(-120)); ctx.rotate(-Math.PI / 2); ctx.fillText('PACIFIC SHELF', 0, 0); ctx.restore();
   const p = G.player, px = p.vehicle ? p.vehicle.x : p.x, pz = p.vehicle ? p.vehicle.z : p.z;
   const tgt = G.missions.target();
   if (tgt) {

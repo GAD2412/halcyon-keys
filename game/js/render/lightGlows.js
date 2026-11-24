@@ -2,7 +2,6 @@
 // Static night lights (lamps, neon, string lights) plus dynamic ones written each frame (sirens,
 // headlights, tail lights, muzzle flashes, fire).
 import * as THREE from 'three';
-import { makeGlowTexture } from './facadeTextures.js';
 
 const vert = `
 attribute float size; attribute vec3 tint;
@@ -15,9 +14,12 @@ void main() {
   gl_Position = projectionMatrix * mv;
 }`;
 const frag = `
-uniform sampler2D glow; varying vec3 vTint;
+varying vec3 vTint;
 void main() {
-  float a = texture2D(glow, gl_PointCoord).r;
+  vec2 q = gl_PointCoord - 0.5;
+  float d2 = dot(q, q) * 4.0;
+  float a = exp(-d2 * 5.0) + exp(-d2 * 40.0) * 0.6;
+  a *= 1.0 - smoothstep(0.7, 1.0, d2);
   gl_FragColor = vec4(vTint * a, a);
 }`;
 
@@ -29,7 +31,7 @@ export function createLightGlows(scene, capacity = 4000) {
   geo.setAttribute('size', new THREE.BufferAttribute(size, 1).setUsage(THREE.DynamicDrawUsage));
   const mat = new THREE.ShaderMaterial({
     vertexShader: vert, fragmentShader: frag,
-    uniforms: { glow: { value: makeGlowTexture() }, scale: { value: 600 } },
+    uniforms: { scale: { value: 600 } },
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
   });
   const points = new THREE.Points(geo, mat);
@@ -44,7 +46,7 @@ export function createLightGlows(scene, capacity = 4000) {
     addStatic(list) { for (const p of list) statics.push(p); },
     begin() {
       count = 0;
-      if (api.nightLevel > 0.25) for (const s of statics) api.add(s[0], s[1], s[2], s[3] * api.nightLevel, s[4] * api.nightLevel, s[5] * api.nightLevel, s[6]);
+      if (api.nightLevel > 0.15) for (const s of statics) api.add(s[0], s[1], s[2], s[3] * api.nightLevel, s[4] * api.nightLevel, s[5] * api.nightLevel, s[6]);
     },
     add(x, y, z, r, g, b, s) {
       if (count >= capacity) return;
@@ -57,7 +59,8 @@ export function createLightGlows(scene, capacity = 4000) {
       geo.setDrawRange(0, count);
       for (const k of ['position', 'tint', 'size']) geo.attributes[k].needsUpdate = true;
     },
-    setViewportHeight(h) { mat.uniforms.scale.value = h * 0.9; },
+    // sizes are given in sixths of a metre of glow diameter
+    setViewportHeight(h) { mat.uniforms.scale.value = h * 0.22; },
   };
   return api;
 }

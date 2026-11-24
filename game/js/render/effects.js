@@ -54,7 +54,7 @@ export function createEffects(scene) {
   scene.add(trLines);
 
   const api = {
-    smoke(x, y, z, size = 1, shade = 0.8) { emit(x, y, z, rng.range(-0.6, 0.6), rng.range(0.6, 1.4), rng.range(-0.6, 0.6), rng.range(1.2, 2.2), size, size * 1.4, shade, 0.5); },
+    smoke(x, y, z, size = 1, shade = 0.8, alpha = 0.5) { emit(x, y, z, rng.range(-0.6, 0.6), rng.range(0.6, 1.4), rng.range(-0.6, 0.6), rng.range(1.2, 2.2), size, size * 1.4, shade, alpha); },
     dust(x, y, z) { emit(x, y, z, rng.range(-1, 1), rng.range(0.2, 0.8), rng.range(-1, 1), 0.8, 0.6, 1.2, 0.9, 0.35); },
     blood(x, y, z) { for (let i = 0; i < 6; i++) emit(x, y, z, rng.range(-1.5, 1.5), rng.range(0.5, 2.5), rng.range(-1.5, 1.5), 0.5, 0.25, 0.1, -1, 0.9); },
     fire(x, y, z) {

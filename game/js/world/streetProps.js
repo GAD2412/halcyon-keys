@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { MeshBuilder, vcolor } from '../render/meshBuilder.js';
 import { GRID, CITY_MIN, CITY_MAX, districtAt } from './cityPlan.js';
 import { createRandom } from '../core/random.js';
+import { makeGlowTexture } from '../render/facadeTextures.js';
 
 function palmTrunkGeometry() {
   const mb = new MeshBuilder();
@@ -117,5 +118,16 @@ export function buildStreetProps(scene, plan) {
   instanced(signalGeometry(), signals, false);
 
   for (const [x, z, r] of lamps) glowPoints.push([x + Math.sin(r + Math.PI / 2) * 1.8, 6.6, z + Math.cos(r + Math.PI / 2) * 1.8, 1, 0.82, 0.55, 7]);
-  return { glowPoints, palmCount: palms.length };
+
+  // warm pools of light on the ground under every lamp, shown at night (one additive mesh)
+  const pools = new MeshBuilder();
+  const warm = vcolor('#ffcf8a');
+  for (const [x, z, r] of lamps) {
+    const cx = x + Math.sin(r + Math.PI / 2) * 2.4, cz = z + Math.cos(r + Math.PI / 2) * 2.4, R = 7;
+    pools.quad([cx - R, 0.2, cz + R], [cx + R, 0.2, cz + R], [cx + R, 0.2, cz - R], [cx - R, 0.2, cz - R], [0, 1, 0], warm, [0, 0, 1, 0, 1, 1, 0, 1]);
+  }
+  const poolMesh = new THREE.Mesh(pools.build(), new THREE.MeshBasicMaterial({ map: makeGlowTexture(), vertexColors: true, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, polygonOffset: true, polygonOffsetFactor: -4 }));
+  poolMesh.visible = false;
+  scene.add(poolMesh);
+  return { glowPoints, palmCount: palms.length, nightMeshes: [poolMesh] };
 }

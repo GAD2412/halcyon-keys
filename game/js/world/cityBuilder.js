@@ -148,6 +148,34 @@ export function buildCity(scene, dayNight) {
     }
   }
 
+  // ---- neon: tower edge strips and crown bands downtown, sign blades on the deco hotels
+  const neon = new MeshBuilder();
+  const NEON = ['#3ff0ff', '#ff3fd0', '#9a6bff', '#ff8a3f', '#4dff9a'];
+  for (const b of plan.buildings) {
+    if (b.style === 'glass' && b.h > 40) {
+      const c = NEON[(Math.abs(Math.round(b.x * 7 + b.z * 3)) % NEON.length)];
+      const col = vcolor(c, 1.2);
+      const ex = b.x + b.w / 2 + 0.2, ez = b.z + b.d / 2 + 0.2, top = b.h + 0.16;
+      neon.box(ex, top * 0.45, ez, 0.35, top * 0.88, 0.35, col);
+      for (const [ox, oz, sx, sz] of [[0, b.d / 2 + 0.2, b.w + 0.6, 0.3], [0, -b.d / 2 - 0.2, b.w + 0.6, 0.3], [b.w / 2 + 0.2, 0, 0.3, b.d + 0.6], [-b.w / 2 - 0.2, 0, 0.3, b.d + 0.6]]) neon.box(b.x + ox, top - 2.5, b.z + oz, sx, 0.45, sz, col);
+      const cc = new THREE.Color(c);
+      for (let yy = 4; yy < top * 0.88; yy += 6) glowPoints.push([ex, yy, ez, cc.r, cc.g, cc.b, 4]);
+      for (const [ox, oz] of [[b.w / 2, b.d / 2], [-b.w / 2, b.d / 2], [b.w / 2, -b.d / 2], [-b.w / 2, -b.d / 2], [0, b.d / 2 + 0.2], [0, -b.d / 2 - 0.2], [b.w / 2 + 0.2, 0], [-b.w / 2 - 0.2, 0]]) glowPoints.push([b.x + ox, top - 2.5, b.z + oz, cc.r, cc.g, cc.b, 6]);
+    }
+    if (b.trim) {
+      const c = rnd.pick(['#ff4fa8', '#3ff0e0', '#ffb03f']);
+      const cc = new THREE.Color(c);
+      neon.box(b.x - b.w / 2 - 0.9, b.h * 0.62, b.z + b.d * 0.3, 0.3, b.h * 0.45, 2.2, vcolor(c, 1.2));
+      for (let yy = b.h * 0.42; yy < b.h * 0.84; yy += 2.5) glowPoints.push([b.x - b.w / 2 - 1.2, yy, b.z + b.d * 0.3, cc.r, cc.g, cc.b, 5]);
+    }
+  }
+  if (neon.vertexCount) {
+    const nm = new THREE.Mesh(neon.build(), new THREE.MeshBasicMaterial({ vertexColors: true }));
+    nm.matrixAutoUpdate = false;
+    scene.add(nm);
+    meshes.push(nm);
+  }
+
   // ---- night market stalls and lanterns
   const mk = chunkOf(-250, 50);
   for (let i = 0; i < 8; i++) {

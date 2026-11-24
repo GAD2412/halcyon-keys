@@ -161,9 +161,8 @@ export class Vehicle {
     if (this.wrecked) return;
     if (night) {
       for (const sx of [-1, 1]) {
-        glows.add(this.x + f.x * (L + 0.2) + r.x * W * sx, 0.75, this.z + f.z * (L + 0.2) + r.z * W * sx, 1, 0.93, 0.75, 9);
-        glows.add(this.x - f.x * (L + 0.1) + r.x * W * sx, 0.75, this.z - f.z * (L + 0.1) + r.z * W * sx, 0.9, 0.05, 0.05, 4);
-      }
+        glows.add(this.x + f.x * (L + 0.2) + r.x * W * sx, 0.75, this.z + f.z * (L + 0.2) + r.z * W * sx, 1, 0.93, 0.75, 5.5);
+        glows.add(this.x - f.x * (L + 0.1) + r.x * W * sx, 0.75, this.z - f.z * (L + 0.1) + r.z * W * sx, 0.9, 0.05, 0.05, 3);      }
     } else if (this.controls.brake > 0.2 && this.speed > 1) {
       for (const sx of [-1, 1]) glows.add(this.x - f.x * (L + 0.1) + r.x * W * sx, 0.75, this.z - f.z * (L + 0.1) + r.z * W * sx, 1, 0.08, 0.08, 3.5);
     }
@@ -172,8 +171,9 @@ export class Vehicle {
       const y = this.bar.y;
       const sideR = { x: this.x + r.x * 0.3 - f.x * 0.1, z: this.z + r.z * 0.3 - f.z * 0.1 };
       const sideL = { x: this.x - r.x * 0.3 - f.x * 0.1, z: this.z - r.z * 0.3 - f.z * 0.1 };
-      if (a) glows.add(sideL.x, y, sideL.z, 1.6, 0.1, 0.15, 16); else glows.add(sideR.x, y, sideR.z, 0.15, 0.35, 1.8, 16);
-      glows.add(this.x, y, this.z, a ? 0.5 : 0.1, 0.1, a ? 0.15 : 0.6, 30);
+      if (a) glows.add(sideL.x, y, sideL.z, 1.8, 0.12, 0.15, 17); else glows.add(sideR.x, y, sideR.z, 0.15, 0.4, 2.0, 17);
+      glows.add(sideL.x, y, sideL.z, 1.0, 0.05, 0.1, a ? 7 : 4); glows.add(sideR.x, y, sideR.z, 0.1, 0.25, 1.1, a ? 4 : 7);
+      glows.add(this.x, y + 0.1, this.z, a ? 0.8 : 0.1, 0.05, a ? 0.1 : 0.9, 8);
     }
   }
 

@@ -39,7 +39,7 @@ export function createHelicopter(G, x, z) {
   const coneGeo = new THREE.CylinderGeometry(0.25, 6, 1, 24, 1, true);
   coneGeo.translate(0, -0.5, 0);
   const cone = new THREE.Mesh(coneGeo, new THREE.MeshBasicMaterial({ color: 0xfff0c8, transparent: true, opacity: 0.13, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false }));
-  const spot = new THREE.Mesh(new THREE.CircleGeometry(6.5, 28), new THREE.MeshBasicMaterial({ color: 0xfff2d0, transparent: true, opacity: 0.32, blending: THREE.AdditiveBlending, depthWrite: false }));
+  const spot = new THREE.Mesh(new THREE.CircleGeometry(4.6, 28), new THREE.MeshBasicMaterial({ color: 0xffe6a8, transparent: true, opacity: 0.32, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
   spot.rotation.x = -Math.PI / 2;
   G.scene.add(cone, spot);
 
@@ -76,14 +76,15 @@ export function createHelicopter(G, x, z) {
     cone.scale.set(1, len, 1);
     spot.position.set(h.aimX, 0.25, h.aimZ);
     const night = G.dayNight.state.glow;
-    cone.material.opacity = 0.08 + night * 0.12;
-    spot.material.opacity = 0.22 + night * 0.35;
+    cone.material.opacity = 0.1 + night * 0.1;
+    spot.material.opacity = night * 0.5;
+    spot.visible = showLight && night > 0.2;
     if (h.leaving && Math.hypot(h.x - p.x, h.z - p.z) > 380) h.remove();
   };
   h.sees = (x, z) => !h.leaving && Math.hypot(h.x - x, h.z - z) < 160;
   h.drawGlows = (glows) => {
     const blink = Math.sin(G.time * 8) > 0.6;
-    glows.add(h.x, h.y - 0.3, h.z, 1.2, 1.1, 0.9, 14);
+    glows.add(h.x, h.y - 0.3, h.z, 1.2, 1.1, 0.9, 6);
     if (blink) glows.add(h.x, h.y + 1.8, h.z - 7, 1.6, 0.1, 0.1, 6);
     glows.add(h.x + Math.cos(h.heading) * 1.4, h.y + 0.6, h.z - Math.sin(h.heading) * 1.4, 0.1, 1.2, 0.2, 4);
   };

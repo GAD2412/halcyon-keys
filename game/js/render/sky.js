@@ -18,7 +18,7 @@ float hash(vec3 p) { return fract(sin(dot(p, vec3(12.9898, 78.233, 45.164))) * 4
 void main() {
   vec3 d = normalize(vDir);
   float h = d.y;
-  vec3 col = mix(horizonColor, topColor, pow(clamp(h, 0.0, 1.0), 0.55));
+  vec3 col = mix(horizonColor, topColor, pow(clamp(h, 0.0, 1.0), 0.42));
   col = mix(col, groundColor, smoothstep(0.0, -0.12, h));
   float sd = max(dot(d, normalize(sunDir)), 0.0);
   col += sunColor * pow(sd, 6.0) * 0.45;
