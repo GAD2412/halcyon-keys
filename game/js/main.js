@@ -5,6 +5,7 @@ import { createPoliceDispatch } from './ai/policeDispatch.js';
 import { createWantedLevel } from './systems/wantedLevel.js';
 import { createMissionDirector } from './missions/missionDirector.js';
 import { createSideActivities } from './missions/sideActivities.js';
+import { createPostcards } from './systems/postcards.js';
 import { createTraffic } from './ai/trafficAI.js';
 import { createPedestrians } from './ai/pedestrianAI.js';
 import { createPlayer } from './entities/player.js';
@@ -82,6 +83,7 @@ G.hud = createHud(G);
 G.notify = (t) => G.hud.notify(t);
 G.missions = createMissionDirector(G);
 G.side = createSideActivities(G);
+G.postcards = createPostcards(G);
 G.save = createSaveGame(G);
 G.audio = createAudio(G);
 G.menus = createMenus(G);
@@ -176,6 +178,7 @@ function update(dt) {
   G.wanted.update(dt);
   G.missions.update(dt);
   G.side.update(dt, input);
+  G.postcards.update();
   for (const v of G.vehicles) v.update(dt);
   resolveVehicleCollisions(G, G.vehicles);
   G.effects.update(dt);
@@ -205,6 +208,7 @@ function render(dt) {
   for (const v of G.vehicles) if (Math.abs(v.x - c.x) < 260 && Math.abs(v.z - c.z) < 260) v.drawGlows(glows, night);
   G.police.drawGlows(glows);
   G.effects.drawGlows(glows);
+  G.postcards.drawGlows(glows);
   // live traffic signals near the camera
   for (const s of G.signalLamps) {
     if (Math.abs(s.x - c.x) > 150 || Math.abs(s.z - c.z) > 150) continue;

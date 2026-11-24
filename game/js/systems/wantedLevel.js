@@ -25,6 +25,7 @@ export function createWantedLevel(G) {
       // shooting is only a crime if someone is around to hear it
       if (!G.humans.some((h) => h.kind === 'ped' && h.alive && Math.hypot(h.x - x, h.z - z) < 40) && !G.police.anyNear(x, z, 80)) return;
     }
+    if ((type === 'killGang' || type === 'gunfire') && G.missions?.gangFight() && !G.police.anyNear(x, z, 60)) return;
     if (type === 'carjack' && !G.police.anyNear(x, z, 60) && !G.humans.some((h) => h.kind === 'ped' && h.alive && Math.hypot(h.x - x, h.z - z) < 20)) return;
     w.heat += HEAT[type] ?? 1;
     let s = 0;

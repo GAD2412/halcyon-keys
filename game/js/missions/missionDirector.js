@@ -136,6 +136,8 @@ export function createMissionDirector(G) {
       return { kicker: `${m.act} · Mission ${idx + 1}`, title: m.title, objective, index: active.index, total: m.steps.length };
     },
     timer: () => (step()?.type === 'checkpoints' ? Math.max(0, active.data.t) : null),
+    // a gang fight the story asked for: gunfire and gang takedowns here don't bring the police on their own
+    gangFight: () => !!active && (step()?.type === 'eliminate' || step()?.type === 'hold'),
     prompt() {
       const s = startBeam.visible && next();
       if (!s || active) return '';
