@@ -74,17 +74,20 @@ export function stageShot(G, name) {
     cop('reef', -402.6, 109.5 + Z, Math.PI - 0.1, 36, 0.4);
     cop('reef', -393.4, 113.5 + Z, Math.PI + 0.12, 35, 3.6);
     cop('barracuda', -398.6, 122 + Z, Math.PI - 0.03, 37, 1.9);
-    cop('reef', -404.9, 134 + Z, Math.PI + 0.06, 34, 5.0);
-    // a roadblock closing the junction behind the chase
-    const rb1 = cop('reef', -400.2, 211, Math.PI / 2 + 0.35, 0, 1.2); rb1.ai.kind = 'roadblock';
-    const rb2 = cop('reef', -394.2, 215, -Math.PI / 2 + 0.3, 0, 4.4); rb2.ai.kind = 'roadblock';
-    person('cop', -397.5, 207.5, Math.PI, 'aim'); person('cop', -404.5, 213, Math.PI + 0.2, 'aim');
-    // civilian traffic: a cab braking beside the chase, more cars down the road and across the junction
+    cop('reef', -404.9, 128 + Z, Math.PI + 0.06, 34, 5.0);
+    // a PHPD roadblock across all four lanes down the boulevard: cruisers in a V, officers aiming
+    const rb = [[-404.4, 181, Math.PI / 2 + 0.12, 1.2], [-399.6, 183, -Math.PI / 2 + 0.1, 4.4], [-394.8, 181.2, Math.PI / 2 - 0.15, 2.6]];
+    for (const [x, z, h, ph] of rb) cop('reef', x, z, h, 0, ph).ai.kind = 'roadblock';
+    for (const [x, z] of [[-402, 178.2], [-397.2, 178.6], [-406.6, 177.8], [-392.4, 178.4]]) person('cop', x, z, Math.PI + r.range(-0.15, 0.15), 'aim');
+    // civilian traffic: a cab braking beside the chase, cars pulled over, more down the road and across the junction
     car('cab', -405.25, 103 + Z, -0.12, '#f6b62e', 3, { controls: { throttle: 0, brake: 1, steer: 0, handbrake: false } });
-    car('haulit', -405.25, 236, 0, '#f4f1ea', 8);
-    car('pip', -394.75, 186, Math.PI, '#8fd7d0', 0);
-    car('caravel', -401.75, 262, 0, '#2e4a7a', 10);
-    car('brute8', -372, 201.75, Math.PI / 2, '#1f2a44', 10);
+    car('pip', -406.2, 165, -0.08, '#8fd7d0', 0, { controls: { throttle: 0, brake: 1, steer: 0, handbrake: false } });
+    car('haulit', -393.6, 160, Math.PI + 0.06, '#f4f1ea', 0, { controls: { throttle: 0, brake: 1, steer: 0, handbrake: false } });
+    car('caravel', -394.75, 196, Math.PI, '#2e4a7a', 0);
+    car('cab', -405.25, 232, 0, '#f6b62e', 6);
+    car('brute8', -401.75, 252, 0, '#1f2a44', 10);
+    car('pip', -398.25, 240, Math.PI, '#f28ab2', 0);
+    car('brute8', -372, 201.75, Math.PI / 2, '#3fb8b0', 10);
     car('caravel', -352, 198.25, -Math.PI / 2, '#8a1f2c', 10);
     // helicopter with its searchlight on the Kestrel
     const heli = createHelicopter(G, -394.5, 124 + Z);
@@ -102,6 +105,9 @@ export function stageShot(G, name) {
     person('ped', -389.9, 108 + Z, 0.3, 'run', 1.7);
     person('ped', -391.2, 116 + Z, Math.PI / 2, 'cower');
     person('ped', -389.6, 128 + Z, Math.PI / 2 + 0.3, 'run', 4.4);
+    // the beach promenade and the hotel sidewalk further up are busy too
+    for (let i = 0; i < 12; i++) person('ped', -411 - r.range(0, 3.5), 140 + i * 5.5 + r.range(-1.5, 1.5), r.chance(0.5) ? -Math.PI / 2 + r.range(-0.6, 0.6) : r.range(-3, 3), r.chance(0.55) ? 'run' : 'walk');
+    for (let i = 0; i < 8; i++) person('ped', -390.2 + r.range(-0.6, 0.6), 140 + i * 6 + r.range(-1.5, 1.5), r.chance(0.5) ? Math.PI / 2 : r.range(-3, 3), r.chance(0.5) ? 'run' : 'cower');
     for (let i = 0; i < 16; i++) person('ped', r.range(-462, -424), r.range(120, 260), r.range(-3, 3), r.chance(0.4) ? 'run' : 'idle');
     G.hud.dialogue.pin({ who: 'lux', text: 'MANTA-1 is right on you! Lose them in the Lantern Quarter, Nico!' });
     camera([-392.6, 3.5, 86.5 + Z], [-399.4, 4.6, 118 + Z], 60);
