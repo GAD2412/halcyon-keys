@@ -31,7 +31,10 @@ export function drivePoliceCar(G, car, dt) {
   let tz = w.seen ? p.z : w.lastZ + Math.cos(G.time * 0.3 + car.id) * 30;
   if (pv && w.seen) { tx += pv.vx * 0.7; tz += pv.vz * 0.7; }
   const d = Math.hypot(p.x - car.x, p.z - car.z);
-  const sight = d < 60 && G.collision.lineOfSight(car.x, car.z, p.x, p.z);
+  // drive straight at the suspect only when a car-wide corridor is clear, so cruisers don't clip corners
+  const ox = d > 0 ? ((p.z - car.z) / d) * 1.3 : 0, oz = d > 0 ? (-(p.x - car.x) / d) * 1.3 : 0;
+  const sight = d < 60 && G.collision.lineOfSight(car.x, car.z, p.x, p.z)
+    && G.collision.lineOfSight(car.x + ox, car.z + oz, p.x + ox, p.z + oz) && G.collision.lineOfSight(car.x - ox, car.z - oz, p.x - ox, p.z - oz);
   const wp = sight ? { x: tx, z: tz } : routeWaypoint(car.x, car.z, tx, tz);
   const desired = headingTo(car.x, car.z, wp.x, wp.z);
   let diff = wrapAngle(desired - car.heading);
