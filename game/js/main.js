@@ -1,17 +1,18 @@
 // HALCYON KEYS boot: builds Port Halcyon, creates every system, wires events between them and runs the
-// title → play → pause → wasted/busted flow. Imports are ordered so the city, police and missions come first.
-import { buildCity } from './world/cityBuilder.js';
-import { createPoliceDispatch } from './ai/policeDispatch.js';
+// title → play → pause → wasted/busted flow. Imports are ordered so the showcase systems come first:
+// wanted level and police, missions and traffic, street races, then the HUD and minimap.
 import { createWantedLevel } from './systems/wantedLevel.js';
+import { createPoliceDispatch } from './ai/policeDispatch.js';
 import { createMissionDirector } from './missions/missionDirector.js';
-import { createSideActivities } from './missions/sideActivities.js';
-import { createPostcards } from './systems/postcards.js';
 import { createTraffic } from './ai/trafficAI.js';
+import { createSideActivities } from './missions/sideActivities.js';
+import { createHud } from './ui/hud.js';
 import { createPedestrians } from './ai/pedestrianAI.js';
+import { createCombat } from './systems/combat.js';
 import { createPlayer } from './entities/player.js';
 import { resolveVehicleCollisions } from './entities/vehicle.js';
-import { createCombat } from './systems/combat.js';
-import { createHud } from './ui/hud.js';
+import { createPostcards } from './systems/postcards.js';
+import { buildCity } from './world/cityBuilder.js';
 import { createMenus } from './ui/menus.js';
 import { createAudio } from './audio/audioEngine.js';
 import { createSaveGame } from './systems/saveGame.js';
