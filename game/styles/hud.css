@@ -74,3 +74,6 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0f1e; fon
 .hud-big small { display: block; font-size: 26px; letter-spacing: 3px; color: var(--hk-gold); }
 .hud-big.wasted { color: #ff4a55; } .hud-big.busted { color: #6fb6ff; } .hud-big.passed { color: var(--hk-gold); }
 .hud-timer { position: absolute; top: 120px; left: 50%; transform: translateX(-50%); font-size: 40px; font-weight: 800; text-shadow: var(--hk-shadow); z-index: 2; }
+.hud-racepos { position: absolute; top: 104px; left: calc(50% + 78px); white-space: nowrap; padding: 2px 14px 4px; border-radius: 10px; background: var(--hk-ink); border-left: 5px solid #ffa12a; font-size: 54px; font-weight: 900; line-height: 1; text-shadow: var(--hk-shadow); }
+.hud-racepos small { display: block; font-size: 13px; letter-spacing: 3px; color: #ffa12a; font-weight: 800; }
+.hud-racepos em { font-style: normal; font-size: 26px; opacity: 0.8; }

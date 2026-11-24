@@ -97,6 +97,7 @@ export function createSideActivities(G) {
     races: RACES, best,
     racesWon: () => RACES.filter((r) => best[r.id] !== undefined).length,
     rivals: () => race?.rivals || [],
+    place: () => (race && race.countdown <= 0 ? position() : null),
     faresDone: () => faresDone,
     markers: () => (busy() || race || fare ? [] : RACES.map((r) => ({ x: r.start.x, z: r.start.z }))),
     target() {

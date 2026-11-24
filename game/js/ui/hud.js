@@ -25,6 +25,7 @@ export function createHud(G) {
   <div class="hud-crosshair hidden"></div>
   <div class="hud-notify hidden"></div>
   <div class="hud-timer hidden"></div>
+  <div class="hud-racepos hidden"></div>
   <div class="hud-big hidden"></div>`;
   const $ = (s) => root.querySelector(s);
   const el = {
@@ -34,6 +35,7 @@ export function createHud(G) {
     dispatch: $('.hud-dispatch'), dlist: $('.d-list'), district: $('.hud-district'),
     hp: $('.hp b'), ar: $('.ar b'), speed: $('.hud-speed'), snum: $('.s-num'), sgauge: $('.s-gauge b'), scar: $('.s-car'), sradio: $('.s-radio'),
     prompt: $('.hud-prompt'), cross: $('.hud-crosshair'), notify: $('.hud-notify'), timer: $('.hud-timer'), big: $('.hud-big'),
+    racepos: $('.hud-racepos'),
   };
   const minimap = createMinimap($('.hud-minimap canvas'), G);
   const dialogue = createDialogueBox(root);
@@ -63,6 +65,9 @@ export function createHud(G) {
       const timer = G.side.timer() ?? G.missions.timer();
       el.timer.classList.toggle('hidden', timer === null);
       if (timer !== null) set('timer', el.timer, 'textContent', `${Math.floor(timer / 60)}:${String(Math.floor(timer % 60)).padStart(2, '0')}`);
+      const place = G.side.place();
+      el.racepos.classList.toggle('hidden', place === null);
+      if (place !== null) set('racepos', el.racepos, 'innerHTML', `<small>POS</small>${place}<em>/4</em>`);
       // status column
       set('clock', el.clock, 'textContent', `${G.dayNight.clockText()}  ·  ${pr.rank().name.toUpperCase()}`);
       set('cash', el.cash, 'textContent', formatMoney(pr.cash));
